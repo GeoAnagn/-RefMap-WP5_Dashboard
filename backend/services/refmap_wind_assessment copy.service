@@ -1,0 +1,14 @@
+[Unit]
+Description=RefMap Wind Assessment Service
+After=network.target
+
+[Service]
+Type=simple
+User=%u
+WorkingDirectory=/home/refmap-imafusa/Documents/RefMap/backend/wind_assessment
+ExecStart=/home/refmap-imafusa/miniconda3/bin/python app.py
+Restart=on-failure
+Environment=FLASK_ENV=production
+
+[Install]
+WantedBy=multi-user.target

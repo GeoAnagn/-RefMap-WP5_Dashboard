@@ -1,0 +1,233 @@
+
+
+:root {
+  /* RefMap brand */
+  --refmap-primary: #145DA0; /* deep blue */
+  --refmap-accent: #21CE99;  /* green */
+  --refmap-dark: #0A2342;    /* navy */
+  --refmap-bg-start: #0a2342;
+  --refmap-bg-end: #145da0;
+  --refmap-bg-gradient: radial-gradient(1200px 1200px at 10% 10%, rgba(33,206,153,0.18) 0%, rgba(33,206,153,0.06) 30%, transparent 60%), linear-gradient(135deg, var(--refmap-bg-start) 0%, var(--refmap-bg-end) 60%, #0b2f59 100%);
+  --refmap-card-bg: rgba(255, 255, 255, 0.9);
+  --refmap-card-radius: 20px;
+  --refmap-card-shadow: 0 10px 30px rgba(10, 35, 66, 0.18);
+  --refmap-btn-radius: 999px;
+  --refmap-btn-shadow: 0 10px 20px rgba(20, 93, 160, 0.15);
+  --refmap-footer-bg: linear-gradient(90deg, rgba(20,93,160,0.95), rgba(33,206,153,0.95));
+  --refmap-footer-shadow: 0 -6px 20px rgba(10, 35, 66, 0.25);
+}
+
+html, body {
+  min-height: 100vh;
+  min-width: 100vw;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #E6F0FF;
+  background: var(--refmap-bg-gradient);
+  background-attachment: fixed;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--refmap-primary);
+  font-weight: 700;
+  margin-top: 0;
+}
+
+/* links */
+a { color: var(--refmap-accent); text-decoration: none; transition: color 0.2s ease; }
+a:hover { color: #7DE8C7; }
+
+button {
+  background: var(--refmap-accent);
+  color: #0A2342;
+  border: none;
+  border-radius: var(--refmap-btn-radius);
+  padding: 0.8rem 1.2rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: var(--refmap-btn-shadow);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+button:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(33,206,153,0.25); }
+button:active { transform: translateY(0); }
+
+/* glassy card */
+.card {
+  background: var(--refmap-card-bg);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-radius: var(--refmap-card-radius);
+  box-shadow: var(--refmap-card-shadow);
+  border: 1px solid rgba(255,255,255,0.6);
+  padding: 1.25rem;
+}
+
+.accent-text {
+  color: var(--refmap-accent);
+}
+
+.primary-bg {
+  background: var(--refmap-primary);
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .card { padding: 1rem; }
+  button { padding: 0.6rem 1rem; font-size: 0.9rem; }
+}
+
+
+/* remove leftover vite defaults */
+
+
+/* already defined above */
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+img, svg {
+  max-width: 100%;
+  display: block;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+}
+
+
+/* Utility classes */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #0A2342 0%, #145DA0 60%, #21CE99 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+
+.card {
+  border-radius: var(--refmap-card-radius);
+  background: var(--refmap-card-bg);
+  box-shadow: var(--refmap-card-shadow);
+  padding: 1.5rem;
+}
+
+.btn {
+  border-radius: var(--refmap-btn-radius);
+  box-shadow: var(--refmap-btn-shadow);
+  font-weight: 700;
+  padding: 0.7rem 2rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #145DA0 0%, #21CE99 100%);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #145DA0;
+  border: 1.5px solid #21CE99;
+}
+
+
+footer.refmap-footer {
+  width: 100vw;
+  text-align: center;
+  position: fixed;
+  left: 0; bottom: 0;
+  padding: 0.8rem 0.6rem;
+  font-size: 0.95rem;
+  color: #ffffff; /* white text for readability */
+  background: rgba(255,255,255,0.06); /* transparent glass */
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  z-index: 10;
+  box-shadow: 0 -4px 16px rgba(10, 35, 66, 0.25);
+  border-top: 1px solid rgba(255,255,255,0.35);
+}
+
+#app { max-width: 1280px; margin: 0 auto; padding: 2rem; text-align: center; }
+
+h1 { font-size: 3.2em; line-height: 1.1; }
+
+
+/* Fades */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* Remove ambient glow, drop-shadows, and long transitions from cards/buttons */
+
+/* Responsive helpers */
+@media (max-width: 1024px) {
+  #app { padding: 1.5rem; }
+  h1 { font-size: 2.5em; }
+}
+
+@media (max-width: 768px) {
+  #app { padding: 1rem; }
+  h1 { font-size: 2em; }
+  .card { padding: 1rem; }
+  .btn { padding: 0.6rem 1.2rem; font-size: 0.95rem; }
+  footer.refmap-footer { 
+    font-size: 0.85rem;
+    padding: 0.6rem 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #app { padding: 0.5rem; }
+  h1 { font-size: 1.5em; }
+  .card { padding: 0.7rem; }
+  .btn { padding: 0.5rem 0.8rem; font-size: 0.85rem; }
+  footer.refmap-footer { 
+    font-size: 0.7rem;
+    padding: 0.5rem 0.4rem;
+  }
+}
+
+@media (max-width: 360px) {
+  #app { padding: 0.25rem; }
+  h1 { font-size: 1.25em; }
+  .card { padding: 0.5rem; }
+  .btn { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+  footer.refmap-footer { 
+    font-size: 0.65rem;
+    padding: 0.4rem 0.3rem;
+  }
+}
+
+/* Dashboard specific modern styles */
+.dashboard-center { display: flex; align-items: center; justify-content: center; }
+
+.dashboard-btn-simple { background: rgba(255,255,255,0.9); color: var(--refmap-dark); border: 1px solid rgba(255,255,255,0.6); }
+.dashboard-btn-simple.active { background: linear-gradient(135deg, var(--refmap-primary), var(--refmap-accent)); color: #fff; }
+
+.refmap-card.refmap-card-inline { background: rgba(255,255,255,0.82); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.6); }
+.refmap-card-title { font-weight: 800; color: var(--refmap-primary); }
+.refmap-card-subtitle { color: var(--refmap-dark); font-weight: 700; opacity: 0.85; }
+.refmap-card-desc { color: #103a6b; }
+.refmap-card-btn.launch { font-weight: 800; }
+.refmap-card-btn.documentation { border-color: #0f8c66; color: #107255; }
+.refmap-card-btn.documentation:hover { background-color: rgba(15,140,102,0.10); color: #0c6f53; border-color: #0c6f53; }
+
+/* utility */
+.elevate-on-hover { transition: transform 0.15s ease, box-shadow 0.2s ease; }
+.elevate-on-hover:hover { transform: translateY(-2px); box-shadow: 0 18px 32px rgba(0,0,0,0.18); }
