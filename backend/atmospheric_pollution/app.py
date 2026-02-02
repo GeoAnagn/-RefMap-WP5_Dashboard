@@ -5,6 +5,7 @@ import traceback
 import matplotlib
 import numpy as np
 import xarray as xr
+import rioxarray
 import pandas as pd
 from io import BytesIO
 from flask_cors import CORS
@@ -84,7 +85,7 @@ def get_dataset() -> xr.Dataset:
     global _ds_cache
     
     if _ds_cache is None:
-        if not os.path.exists(ZARR_STORE):
+        if ZARR_STORE is None or not os.path.exists(ZARR_STORE):
             raise FileNotFoundError(f"ZARR store not found at {ZARR_STORE}")
         
         print(f"Loading ZARR store from {ZARR_STORE}...")
@@ -221,6 +222,19 @@ def get_timeseries():
             dim=["longitude", "latitude"], skipna=True
         )
         
+        if aoi_data.time.size == 0:
+            print("Warning: No data found for the selected time range and geometry.")
+            return jsonify({
+                'data': [],
+                'stats': {
+                    'average': 0.0,
+                    'min': 0.0,
+                    'max': 0.0
+                },
+                'species': species,
+                'unit': SPECIES_UNITS.get(species, '')
+            })
+
         print(f"Resampling to {interval}...")
         values = (
             aoi_data[species]
@@ -529,10 +543,9 @@ def get_point_data():
 
 
 if __name__ == '__main__':
-    if not os.path.exists(ZARR_STORE):
-        print(f"ERROR: ZARR store not found at {ZARR_STORE}")
-        print("Please set the ZARR_STORE environment variable to the correct path")
-        exit(1)
+    if ZARR_STORE is None or not os.path.exists(ZARR_STORE):
+        print(f"WARNING: ZARR store not found at {ZARR_STORE}")
+        print("API endpoints requiring ZARR data will return errors until ZARR_STORE is configured.")
     
     print(f"Starting Atmospheric Pollution API server...")
     print(f"Using ZARR store: {ZARR_STORE}")
@@ -541,8 +554,8 @@ if __name__ == '__main__':
         get_dataset()
         print("Dataset loaded successfully!")
     except Exception as e:
-        print(f"ERROR loading dataset: {e}")
-        exit(1)
+        print(f"WARNING: Could not load initial dataset: {e}")
+        print("Server will start, but data endpoints may fail.")
     
     port = int(os.environ.get('PORT', 4006))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port)

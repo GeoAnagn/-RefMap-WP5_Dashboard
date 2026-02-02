@@ -10,6 +10,9 @@ export default defineConfig({
   server: {
     host,
     port,
+    watch: {
+      ignored: ['**/backend/**', '**/data/**', '**/.git/**']
+    },
     proxy: {
       '/api/climate_impact': {
         target: `http://${host}:${port + 1}`,

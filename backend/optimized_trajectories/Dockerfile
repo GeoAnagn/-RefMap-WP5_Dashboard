@@ -16,6 +16,8 @@ RUN conda install -y -c conda-forge \
     pyproj \
     cartopy \
     geopandas \
+    rioxarray \
+    zarr \
     && conda clean -afy
 
 COPY . .
