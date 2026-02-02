@@ -1,0 +1,14 @@
+[Unit]
+Description=RefMap Production Server
+After=network.target
+
+[Service]
+Type=simple
+User=george
+WorkingDirectory=/home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard
+ExecStart=/home/george/.nvm/versions/node/v24.13.0/bin/npm run dev
+Restart=on-failure
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

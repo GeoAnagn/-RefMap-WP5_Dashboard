@@ -10,7 +10,7 @@ from pyproj import Transformer, CRS
 from flask import Flask, request, jsonify
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-DATA_BASE_DIR = os.path.abspath(os.path.join(APP_ROOT, "..", "..", "backend", "wind_assessment", "data"))
+DATA_BASE_DIR = os.path.join(APP_ROOT, 'data')
 PLOT_OUTPUT_DIR = os.path.abspath(os.path.join("data", "output_pngs_overlay"))
 
 CRS_RD_NEW = CRS("EPSG:28992")
@@ -208,3 +208,4 @@ def image_info():
 if __name__ == "__main__":
     print("\nStarting Flask server...")
     app.run(debug=True, host='0.0.0.0', port=4002)
+    

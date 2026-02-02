@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: optimized-trajectories
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: optimized-trajectories
+  template:
+    metadata:
+      labels:
+        app: optimized-trajectories
+    spec:
+      containers:
+      - name: optimized-trajectories
+        image: refmap/optimized_trajectories:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4004
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+      volumes:
+      - name: data-volume
+        hostPath:
+          path: /home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/optimized_trajectories/data
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: optimized-trajectories
+spec:
+  type: NodePort
+  selector:
+    app: optimized-trajectories
+  ports:
+    - protocol: TCP
+      port: 4004
+      targetPort: 4004
+      nodePort: 30004

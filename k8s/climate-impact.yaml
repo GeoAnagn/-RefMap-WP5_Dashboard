@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: climate-impact
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: climate-impact
+  template:
+    metadata:
+      labels:
+        app: climate-impact
+    spec:
+      containers:
+      - name: climate-impact
+        image: refmap/climate_impact:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4001
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+      volumes:
+      - name: data-volume
+        hostPath:
+          path: /home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/climate_impact/data
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: climate-impact
+spec:
+  type: NodePort
+  selector:
+    app: climate-impact
+  ports:
+    - protocol: TCP
+      port: 4001
+      targetPort: 4001
+      nodePort: 30001

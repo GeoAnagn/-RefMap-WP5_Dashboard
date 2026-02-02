@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atmospheric-pollution
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atmospheric-pollution
+  template:
+    metadata:
+      labels:
+        app: atmospheric-pollution
+    spec:
+      containers:
+      - name: atmospheric-pollution
+        image: refmap/atmospheric_pollution:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4006
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+      volumes:
+      - name: data-volume
+        hostPath:
+          path: /home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/atmospheric_pollution/data
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: atmospheric-pollution
+spec:
+  type: NodePort
+  selector:
+    app: atmospheric-pollution
+  ports:
+    - protocol: TCP
+      port: 4006
+      targetPort: 4006
+      nodePort: 30006

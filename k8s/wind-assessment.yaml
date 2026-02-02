@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wind-assessment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wind-assessment
+  template:
+    metadata:
+      labels:
+        app: wind-assessment
+    spec:
+      containers:
+      - name: wind-assessment
+        image: refmap/wind_assessment:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4002
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+      volumes:
+      - name: data-volume
+        hostPath:
+          path: /home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/wind_assessment/data
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wind-assessment
+spec:
+  type: NodePort
+  selector:
+    app: wind-assessment
+  ports:
+    - protocol: TCP
+      port: 4002
+      targetPort: 4002
+      nodePort: 30002

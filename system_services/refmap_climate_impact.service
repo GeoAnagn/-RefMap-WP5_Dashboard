@@ -1,0 +1,15 @@
+[Unit]
+Description=RefMap Climate Impact Service
+After=network.target
+
+[Service]
+Type=simple
+User=george
+WorkingDirectory=/home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/climate_impact
+ExecStart=/tools/miniconda3/envs/RefMapDashboard/bin/python app.py
+Restart=on-failure
+Environment=FLASK_ENV=production
+Environment=PORT=4001
+
+[Install]
+WantedBy=multi-user.target

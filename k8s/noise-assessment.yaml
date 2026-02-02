@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noise-assessment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: noise-assessment
+  template:
+    metadata:
+      labels:
+        app: noise-assessment
+    spec:
+      containers:
+      - name: noise-assessment
+        image: refmap/noise_assessment:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4003
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+      volumes:
+      - name: data-volume
+        hostPath:
+          path: /home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/noise_assessment/data
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: noise-assessment
+spec:
+  type: NodePort
+  selector:
+    app: noise-assessment
+  ports:
+    - protocol: TCP
+      port: 4003
+      targetPort: 4003
+      nodePort: 30003

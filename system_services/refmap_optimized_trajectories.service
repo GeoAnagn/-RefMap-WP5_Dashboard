@@ -1,0 +1,15 @@
+[Unit]
+Description=RefMap Optimized Trajectories Service
+After=network.target
+
+[Service]
+Type=simple
+User=george
+WorkingDirectory=/home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/optimized_trajectories
+ExecStart=/tools/miniconda3/envs/RefMapDashboard/bin/python app.py
+Restart=on-failure
+Environment=FLASK_ENV=production
+Environment=PORT=4004
+
+[Install]
+WantedBy=multi-user.target

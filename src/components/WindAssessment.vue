@@ -479,24 +479,27 @@ watch(heatmapBounds, async (newBounds) => {
 
 // --- Dynamic colorbar gradient ---
 const colorBarGradient = computed(() => {
+  // Matplotlib RdBu_r approximation: Blue (low) -> White -> Red (high)
+  const gradient = 'linear-gradient(to right, #2166ac 0%, #f7f7f7 50%, #b2182b 100%)';
+  
   if (filters.value.parameter === 'Turbulence Level') {
-    return 'linear-gradient(to right, #00ff00 0%, #800080 100%)'; // green to purple, horizontal
+    return gradient;
   }
   if (filters.value.parameter === 'Wind Speed') {
-    return 'linear-gradient(to right, #ff2d55 0%, #0052cc 100%)'; // red to blue, horizontal
+    return gradient;
   }
-  // Default: white to red, horizontal
-  return 'linear-gradient(to right, #fff 0%, #ff2d55 100%)';
+  // Default fallback
+  return gradient;
 })
 
 // --- Color bar min/max for Turbulence Level and Wind Speed ---
 watch(() => filters.value.parameter, (param) => {
   if (param === 'Turbulence Level') {
     colorBarMin.value = '0%'
-    colorBarMax.value = '8%'
+    colorBarMax.value = '8%' 
   } else if (param === 'Wind Speed') {
-    colorBarMin.value = '0m/s'
-    colorBarMax.value = '5m/s'
+    colorBarMin.value = '0 m/s'
+    colorBarMax.value = '7 m/s'
   }
 })
  
