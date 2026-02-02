@@ -1,35 +1,22 @@
-
-# --- Flask Backend (app.py) ---
 import os
 import json
-import numpy as np
-from netCDF4 import Dataset
-from datetime import datetime, timedelta
 import traceback
 import threading
-from flask import Flask, jsonify, request, send_from_directory, send_file
+from netCDF4 import Dataset
+from flask import Flask, jsonify, request, send_file
 
 app = Flask(__name__)
 
-# Thread lock for NetCDF file access (prevents concurrent access issues)
 netcdf_lock = threading.Lock()
-
-# Get the directory where this script (app.py) is located
 basedir = os.path.abspath(os.path.dirname(__file__))
-
-# Directory where date folders are stored (e.g., 25022025)
 DATE_ROOT_DIR = os.path.join(basedir, "data")
 
-# Helper to get data dir for a date
 def get_data_dir_for_date(date):
     return os.path.join(DATE_ROOT_DIR, date)
 
-# Helper to get heatmap image dir for a date
 def get_heatmap_image_dir_for_date(date):
     return os.path.join(DATE_ROOT_DIR, date, "heatmaps_overlay_cloud_effect")
 
-
-# --- Helper function to infer details from filename ---
 def infer_file_details(base_name):
     dt = None
     scale = None
@@ -82,7 +69,6 @@ def infer_file_details(base_name):
 
     return dt, scale, cost_val
 
-# --- Helper to build filter info for a date ---
 def build_filter_info(selected_date):
     """
     Returns (data_types, scales, costs, files_map) for a given date.
@@ -108,14 +94,12 @@ def build_filter_info(selected_date):
         if dt not in files_map: files_map[dt] = {}
         if scale not in files_map[dt]: files_map[dt][scale] = {}
         files_map[dt][scale][cost_val] = base_name
-    # Convert sets to sorted lists
     data_types = sorted(list(data_types))
     for dt in scales:
         scales[dt] = sorted(list(scales[dt]))
     for dt in costs:
         for sc in costs[dt]:
             costs[dt][sc] = sorted(list(costs[dt][sc]))
-    # Ensure costs mapping includes 'noCost' option if files exist under it
     for dt in files_map:
         for sc in files_map[dt]:
             if "noCost" in files_map[dt][sc] and "noCost" not in costs[dt].get(sc, []):
@@ -126,7 +110,6 @@ def build_filter_info(selected_date):
                     costs[dt][sc].sort()
     return data_types, scales, costs, files_map
 
-# --- New endpoints for each filter ---
 @app.route('/api/get-dates', methods=['GET'])
 def get_dates():
     """Returns available date folders."""
@@ -185,11 +168,9 @@ def get_netcdf_metadata():
         cost = request.args.get('cost', '')
         if not selected_date or not data_type or not scale:
             return jsonify({'error': 'Missing required filter(s)'}), 400
-        # Build files map for the date
         _, _, _, files_map = build_filter_info(selected_date)
         file_base = ''
         if files_map.get(data_type, {}).get(scale, {}):
-            # If cost is present, use it, else fallback to 'noCost'
             cost_key = cost if cost in files_map[data_type][scale] else 'noCost'
             file_base = files_map[data_type][scale].get(cost_key, '')
         if not file_base:
@@ -199,22 +180,18 @@ def get_netcdf_metadata():
         if not os.path.exists(nc_path):
             return jsonify({'error': f"NetCDF file not found: {file_base}.nc"}), 404
         
-        # Use lock to prevent concurrent file access issues
         with netcdf_lock:
             with Dataset(nc_path, 'r') as ds:
-                # Try to find altitude and time variables
                 alt_keys = [k for k in ds.variables.keys() if k.lower() in ['altitude', 'alt', 'level', 'lev', 'flightlevel', 'fl']]
                 time_keys = [k for k in ds.variables.keys() if k.lower() in ['time', 't']]
                 altitudes = ds.variables[alt_keys[0]][:].tolist() if alt_keys else []
                 times = ds.variables[time_keys[0]][:].tolist() if time_keys else []
-                # Try to get lon/lat bounds
                 lon_keys = [k for k in ds.variables.keys() if k.lower() in ['lon', 'longitude']]
                 lat_keys = [k for k in ds.variables.keys() if k.lower() in ['lat', 'latitude']]
                 lon_min = float(ds.variables[lon_keys[0]][:].min()) if lon_keys else None
                 lon_max = float(ds.variables[lon_keys[0]][:].max()) if lon_keys else None
                 lat_min = float(ds.variables[lat_keys[0]][:].min()) if lat_keys else None
                 lat_max = float(ds.variables[lat_keys[0]][:].max()) if lat_keys else None
-                # Try to get overall min/max for the main variable (first 2D/3D var that's not coord)
                 main_var = None
                 for vname, var in ds.variables.items():
                     if vname.lower() in ['time', 'altitude', 'alt', 'level', 'lev', 'flightlevel', 'fl', 'lon', 'longitude', 'lat', 'latitude']:
@@ -277,7 +254,6 @@ def get_heatmap_overlay():
 
 
     except Exception as e:
-        # Catch any other exceptions
         image_filename_for_error = f"{requested_file_base}_t{time_idx_padded}_alt{alt_idx_padded}_cloud_overlay.png"
         print(f"Unexpected error in get_heatmap_overlay for {image_filename_for_error}: {e}")
         return jsonify({'error': f"An unexpected server error occurred: {str(e)}"}) , 500
@@ -300,7 +276,6 @@ def get_atr_percentage_increase():
             return jsonify({'error': f"ATR_Information.json not found for date {selected_date}"}), 404
         with open(file_path, 'r') as f:
             atr_data = json.load(f)
-        # Find BAU values (look for entry with Type == 'BAU', case-insensitive)
         bau_entry = None
         for k, v in atr_data.items():
             if isinstance(v, dict) and str(v.get('Type', '')).strip().lower() == 'bau':
@@ -310,7 +285,6 @@ def get_atr_percentage_increase():
         if not bau_entry:
             print("No BAU entry found! Available types:", [v.get('Type', '') for v in atr_data.values() if isinstance(v, dict)])
             return jsonify({'error': 'BAU entry not found in ATR_Information.json'}), 500
-        # Find all relevant entries for the selected scale (case-insensitive match)
         results = []
         print(f"ATR_Information.json keys: {list(atr_data.keys())}")
         print(f"Selected scale: {selected_scale}")
@@ -345,13 +319,13 @@ def get_atr_percentage_increase():
                 print(f"    Metric: {metric} | BAU: {bau_val} | Value: {val} | %: {pct}")
             results.append(entry)
         print(f"Final results: {results}")
-        # Sort by cost_increase
         results.sort(key=lambda x: x['cost_increase'])
+        
         return jsonify({'data': results})
     except Exception as e:
-        import traceback
         print('Exception in get_atr_percentage_increase:', e)
         traceback.print_exc()
+        
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

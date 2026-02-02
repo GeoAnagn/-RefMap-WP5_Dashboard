@@ -228,11 +228,27 @@ function arrowPoints(cx, cy, deg) {
 onMounted(async () => {
   try {
     const res = await fetch('/api/wind_assessment/api/available_combinations')
+    if (!res.ok) {
+       console.warn('API returned status:', res.status);
+       // Ensure arrays are empty so filters show nothing (or you can show a user alert)
+       availableCombos.value = {};
+       lodOptions.value = [];
+       return;
+    }
     const data = await res.json()
+    // Optional: check if data is empty object
+    if (!data || Object.keys(data).length === 0) {
+       availableCombos.value = {};
+       lodOptions.value = [];
+       return;
+    }
     availableCombos.value = data
     lodOptions.value = Object.keys(data)
   } catch (e) {
     console.error('Failed to fetch available combinations', e)
+    // Clear options on error
+    availableCombos.value = {};
+    lodOptions.value = [];
   }
 })
 

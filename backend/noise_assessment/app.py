@@ -1,18 +1,12 @@
-from flask import send_from_directory
-# Serve static files from the data directory
-
-
-# Noise Assessment Backend API
 import os
-from flask import Flask, jsonify, request
 from flask_cors import CORS
-
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-DATA_BASE_DIR = os.path.join(APP_ROOT, 'data')
+from flask import Flask, jsonify, request, send_from_directory
 
 app = Flask(__name__)
 CORS(app)
 
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+DATA_BASE_DIR = os.path.join(APP_ROOT, 'data')
 
 def _read_global_coordinates():
     """Reads global coordinates from data/coordinates.csv if present.
@@ -33,7 +27,6 @@ def _read_global_coordinates():
                     try:
                         bounds[k] = float(v)
                     except Exception:
-                        # skip non-numeric
                         pass
                 return bounds if bounds else None
     except Exception as e:

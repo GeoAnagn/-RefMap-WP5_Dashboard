@@ -4,9 +4,10 @@ import base64
 import time
 import xarray as xr
 import numpy as np
+from flask_cors import CORS
 from urllib.parse import quote_plus
 from flask import Flask, jsonify, request, send_file, abort
-from flask_cors import CORS
+
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_BASE_DIR = os.path.join(APP_ROOT, 'data', 'contour_maps')
@@ -14,7 +15,6 @@ DATA_BASE_DIR = os.path.join(APP_ROOT, 'data', 'contour_maps')
 app = Flask(__name__)
 CORS(app)
 
-# Default geographic bounds for Europe region used in plots
 DEFAULT_BOUNDS = {
 	'lat-min': 30.0,
 	'lat-max': 80.0,
@@ -22,7 +22,6 @@ DEFAULT_BOUNDS = {
 	'lon-max': 50.0,
 }
 
-# Case normalization to present consistent options (base, increase, difference)
 CASE_SYNONYMS = {
 	'base': ['base'],
 	'increase': ['increase', 'sens', 'sensitivity', 'scenario', 'reduction', '10perc_reduction'],
@@ -35,7 +34,6 @@ UNITS_BY_METRIC = {
 	'o3': 'ppbv',
 }
 
-# Map canonical case to metadata key used in colorbar.json
 COLORBAR_CASE_KEY = {
 	'base': 'base',
 	'increase': 'sens',
@@ -53,9 +51,7 @@ def _canonical_case(case: str):
 			return canonical
 	return None
 
-# Cache computed bounds so we don't reopen the NetCDF on every request
 _BOUNDS_CACHE = None
-
 
 def _compute_bounds_from_nc():
 	"""Read lat/lon from NetCDF and derive Leaflet-friendly bounds."""
@@ -63,7 +59,6 @@ def _compute_bounds_from_nc():
 	if _BOUNDS_CACHE:
 		return _BOUNDS_CACHE
 
-	# Prefer base file; fall back to sensitivity if needed
 	base_nc = os.path.join(APP_ROOT, 'data', 'latlon_regrid_base.nc4')
 	sens_nc = os.path.join(APP_ROOT, 'data', 'latlon_regrid_sens.nc4')
 	nc_path = base_nc if os.path.isfile(base_nc) else sens_nc
@@ -79,7 +74,6 @@ def _compute_bounds_from_nc():
 		lon_min = float(lon.min().item())
 		lon_max = float(lon.max().item())
 
-		# Pad by half a grid step to cover cell edges (if regular grid)
 		dlat = np.nan
 		dlon = np.nan
 		try:
@@ -159,7 +153,6 @@ def _resolve_case_png_path(reduction: str, metric: str, case: str):
 	case_files = _scan_case_files(metric_dir)
 	selected_file = case_files.get(case)
 
-	# Fallback: attempt exact stem match when canonical mapping is absent
 	if not selected_file:
 		for fname in os.listdir(metric_dir):
 			base, ext = os.path.splitext(fname)
@@ -289,9 +282,7 @@ def emissions_image():
 	image_url = None
 
 	if png_path and os.path.isfile(png_path):
-		# Lightweight delivery via URL; cache-bust so client refreshes when selection changes
 		ts = int(time.time())
-		# Include the frontend proxy prefix so the Vite proxy forwards correctly.
 		image_url = f"/api/emissions/api/emissions_image_file?reduction={quote_plus(reduction)}&metric={quote_plus(metric)}&case={quote_plus(case)}&ts={ts}"
 
 		try:
@@ -300,10 +291,8 @@ def emissions_image():
 		except Exception as e:
 			print(f"[WARNING] Failed to read image for {metric}/{case}: {e}")
 
-	# Derive bounds from the NetCDF grid (fallback to default on failure)
 	bounds = _compute_bounds_from_nc()
 
-	# Colorbar metadata: diverging for differences, sequential otherwise
 	metric_lower = metric.lower()
 	units = UNITS_BY_METRIC.get(metric_lower, '')
 	canonical_label = canonical or case

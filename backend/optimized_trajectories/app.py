@@ -17,30 +17,24 @@ def _scan_cases():
     if not os.path.isdir(DATA_DIR):
         return []
 
-    # Level 1: Area
     for area in sorted(os.listdir(DATA_DIR)):
         area_path = os.path.join(DATA_DIR, area)
         if not os.path.isdir(area_path): continue
         
-        # Level 2: Turbulence
         for turb in sorted(os.listdir(area_path)):
             turb_path = os.path.join(area_path, turb)
             if not os.path.isdir(turb_path): continue
             
-            # Level 3: Takeoff Vertiport
             for takeoff in sorted(os.listdir(turb_path)):
                 takeoff_path = os.path.join(turb_path, takeoff)
                 if not os.path.isdir(takeoff_path): continue
                 
-                # Level 4: Landing Vertiport
                 for landing in sorted(os.listdir(takeoff_path)):
                     landing_path = os.path.join(takeoff_path, landing)
                     if not os.path.isdir(landing_path): continue
                     
-                    # The GIF file
                     for filename in os.listdir(landing_path):
                         if filename.lower().endswith('.gif'):
-                            # Create a unique ID using the path
                             rel_path = f"{area}/{turb}/{takeoff}/{landing}/{filename}"
                             cases.append({
                                 'id': rel_path,
@@ -61,7 +55,6 @@ def add_no_cache_headers(resp):
 @app.route('/cases', methods=['GET'])
 def list_cases():
     cases = _scan_cases()
-    # We'll just return the full list and let the frontend filter
     return jsonify({'cases': cases})
 
 @app.route('/gif/<path:rel_path>', methods=['GET'])

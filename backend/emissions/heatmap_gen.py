@@ -19,7 +19,7 @@ from pyproj import CRS, Transformer
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm
 
-try:  # Optional: provide a basemap on previews when cartopy is available
+try: 
     import cartopy.crs as ccrs
     import cartopy.feature as cfeature
 
@@ -30,7 +30,7 @@ except Exception:
 
 LON_NAMES = ["lon", "longitude", "x"]
 LAT_NAMES = ["lat", "latitude", "y"]
-EUROPE_EXTENT = (-15.0, 50.0, 30.0, 80.0)  # west, east, south, north in degrees
+EUROPE_EXTENT = (-15.0, 50.0, 30.0, 80.0)
 
 SHORT_NAME = {
     "PM25": "pm25",
@@ -107,7 +107,6 @@ def dataset_summary(path: str) -> Dict:
     crs = detect_crs(ds)
     summary: Dict[str, object] = {
         "path": path,
-        # use sizes to avoid FutureWarning about dims returning a set in future xarray
         "dims": {k: int(v) for k, v in ds.sizes.items()},
         "crs": crs.to_string() if crs else None,
     }
@@ -130,7 +129,6 @@ def dataset_summary(path: str) -> Dict:
             bbox = None
         summary["bbox"] = bbox
 
-        # Also provide projected bounds in Web Mercator (Leaflet default) when lon/lat are in degrees
         try:
             transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
             corners_lon = np.array([bbox[0], bbox[1], bbox[0], bbox[1]])
@@ -154,7 +152,6 @@ def subset_to_extent(ds: xr.Dataset, extent: Tuple[float, float, float, float]) 
     if lon is None or lat is None:
         return ds
 
-    # 1D lon/lat case: use .sel with slices that respect coordinate order
     if lon.ndim == 1 and lat.ndim == 1:
         lon_min, lon_max, lat_min, lat_max = extent
         lon_slice = slice(lon_min, lon_max) if float(lon[0]) <= float(lon[-1]) else slice(lon_max, lon_min)
@@ -164,7 +161,6 @@ def subset_to_extent(ds: xr.Dataset, extent: Tuple[float, float, float, float]) 
         except Exception:
             pass
 
-    # Fallback for 2D grids or failed slicing: mask with where and drop
     try:
         lon_arr, lat_arr = xr.broadcast(lon, lat)
         mask = (
@@ -179,7 +175,6 @@ def subset_to_extent(ds: xr.Dataset, extent: Tuple[float, float, float, float]) 
 
 
 def pick_var_for_plot(ds: xr.Dataset, lon_name: str, lat_name: str, preferred: Optional[Tuple[str, ...]] = None) -> Optional[str]:
-    # choose the first variable that includes both lon and lat dims, honoring preferred order when given
     candidates = list(preferred or []) + [name for name in ds.data_vars if name not in (preferred or [])]
     for name in candidates:
         if name not in ds.data_vars:
@@ -235,10 +230,8 @@ def plot_quicklook(
 
     da = ds[target_var]
 
-    # enforce (lat, lon) order so pcolormesh gets C shape (lat, lon)
     da = da.transpose(lat_name, lon_name, missing_dims="ignore")
 
-    # drop extra dims by taking the first index along any non-spatial dimension
     for dim in list(da.dims):
         if dim not in {lon_name, lat_name}:
             da = da.isel({dim: 0})
@@ -313,7 +306,6 @@ def contour_overlay(
         vmax = float(np.nanpercentile(finite, 98))
         if vmin == vmax:
             vmax = vmin + 1e-6
-        # ensure the range crosses zero for the diverging cmap
         if vmin >= 0:
             vmin = -max(vmax * 0.1, 1e-12)
         if vmax <= 0:
@@ -323,17 +315,15 @@ def contour_overlay(
         vmax = vmin + 1e-6
 
     data = np.clip(data, vmin, vmax)
-
-    # build a blue -> transparent (at 0) -> red colormap
     cmap = LinearSegmentedColormap.from_list(
         "blue_transparent_red",
         [
-            (0.0, (0.0, 0.0, 1.0, 0.9)),   # solid blue at min
-            (0.45, (0.0, 0.0, 1.0, 0.4)),  # fade blue toward center
-            (0.5, (0.0, 0.0, 1.0, 0.0)),   # fully transparent at zero
-            (0.5, (1.0, 0.0, 0.0, 0.0)),   # continue transparent at zero
-            (0.55, (1.0, 0.0, 0.0, 0.4)),  # fade in red after zero
-            (1.0, (1.0, 0.0, 0.0, 0.9)),   # solid red at max
+            (0.0, (0.0, 0.0, 1.0, 0.9)),   
+            (0.45, (0.0, 0.0, 1.0, 0.4)),  
+            (0.5, (0.0, 0.0, 1.0, 0.0)),   
+            (0.5, (1.0, 0.0, 0.0, 0.0)),   
+            (0.55, (1.0, 0.0, 0.0, 0.4)),  
+            (1.0, (1.0, 0.0, 0.0, 0.9)), 
         ],
     )
     norm = TwoSlopeNorm(vmin=vmin, vcenter=0.0, vmax=vmax)
@@ -478,7 +468,6 @@ def main():
         except Exception as exc:
             print(f"Could not subset/save Europe extent for {path}: {exc}")
 
-    # Generate base/sens contours with symmetric color limits shared across both
     preferred = ("PM25", "SpeciesConcVV_NO2", "SpeciesConcVV_O3")
     if "base" in subsets:
         ds_base, lon_b, lat_b, base_path = subsets["base"]
@@ -588,7 +577,6 @@ def main():
                         }
                     )
 
-    # Compute sens - base differences for overlapping variables
     if "base" in subsets and "sens" in subsets:
         ds_base, lon_b, lat_b, _ = subsets["base"]
         ds_sens, lon_s, lat_s, _ = subsets["sens"]
@@ -618,7 +606,6 @@ def main():
                     contour_name = f"{short}_ll_diff_contour.png"
                     preview_name = f"{short}_ll_diff_preview.png"
                     if preview:
-                        # rename preview file to match pattern
                         base_dir = os.path.dirname(os.path.abspath(diff_path))
                         new_preview = os.path.join(base_dir, preview_name)
                         try:

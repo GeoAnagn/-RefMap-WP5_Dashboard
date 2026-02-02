@@ -1,40 +1,43 @@
+
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-// https://vite.dev/config/
+const host = process.env.HOST || 'localhost';
+const port = process.env.PORT ? Number(process.env.PORT) : 4000;
+
 export default defineConfig({
   plugins: [vue()],
   server: {
-    host: '147.102.37.172',
-    port: 4000,
+    host,
+    port,
     proxy: {
       '/api/climate_impact': {
-        target: 'http://147.102.37.172:4001',
+        target: `http://${host}:${port + 1}`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/climate_impact/, '')
       },
       '/api/wind_assessment': {
-        target: 'http://147.102.37.172:4002',
+        target: `http://${host}:${port + 2}`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/wind_assessment/, '')
       },
       '/api/noise_assessment': {
-        target: 'http://147.102.37.172:4003',
+        target: `http://${host}:${port + 3}`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/noise_assessment/, '')
       },
       '/api/optimized_trajectories': {
-        target: 'http://147.102.37.172:4004',
+        target: `http://${host}:${port + 4}`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/optimized_trajectories/, '')
       },
       '/api/emissions': {
-        target: 'http://147.102.37.172:4005',
+        target: `http://${host}:${port + 5}`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/emissions/, '')
       },
       '/api/atmospheric_pollution': {
-        target: 'http://147.102.37.172:4006',
+        target: `http://${host}:${port + 6}`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/atmospheric_pollution/, '')
       }
