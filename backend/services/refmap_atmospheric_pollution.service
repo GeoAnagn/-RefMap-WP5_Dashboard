@@ -1,0 +1,15 @@
+[Unit]
+Description=RefMap Atmospheric Pollution Proxy Service
+After=network.target
+
+[Service]
+Type=simple
+User=%u
+WorkingDirectory=/home/refmap-imafusa/Documents/RefMap/backend/atmospheric_pollution
+ExecStart=/home/refmap-imafusa/miniconda3/bin/python app.py
+Restart=on-failure
+Environment=FLASK_ENV=production
+Environment=AIRPORTAL_PROXY_PORT=4006
+
+[Install]
+WantedBy=multi-user.target

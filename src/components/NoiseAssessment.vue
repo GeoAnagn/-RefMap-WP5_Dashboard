@@ -20,71 +20,59 @@
 
       <!-- Section 3: Filters -->
       <div class="noise-assessment-section noise-assessment-section-filters">
-        <v-card class="filters-card refmap-card-inline" elevation="0">
-          <v-row class="filter-row" dense>
-            <v-col cols="12" sm="6" md="2">
-              <v-select
-                v-model="selectedCity"
-                :items="cityOptions"
-                label="City"
-                class="filter-select"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" sm="6" md="2">
-              <v-select
-                v-model="selectedTime"
-                :items="timeOptions"
-                label="Time"
-                class="filter-select"
-                :disabled="!selectedCity"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" sm="6" md="2">
-              <v-select
-                v-model="selectedFlightZone"
-                :items="flightZoneOptions"
-                label="Flight Zones"
-                class="filter-select"
-                :disabled="!selectedTime"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" sm="6" md="2">
-              <v-select
-                v-model="selectedFlightsPerHour"
-                :items="flightsPerHourOptions"
-                label="Flights Per Hour"
-                class="filter-select"
-                :disabled="!selectedFlightZone"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" sm="6" md="3">
-              <v-select
-                v-model="selectedMetric"
-                :items="metricOptions"
-                label="Metric"
-                class="filter-select"
-                :disabled="!selectedFlightsPerHour"
-                item-title="title"
-                item-value="value"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-              />
-            </v-col>
-          </v-row>
-        </v-card>
+        <div class="filters-row">
+          <v-select
+            v-model="filters.city"
+            :items="cityOptions"
+            label="City"
+            variant="outlined"
+            class="filter-select"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="filters.time"
+            :items="timeOptions"
+            label="Time"
+            variant="outlined"
+            class="filter-select"
+            :disabled="!filters.city"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="filters.flightZone"
+            :items="flightZoneOptions"
+            label="Flight Zones"
+            variant="outlined"
+            class="filter-select"
+            :disabled="!filters.time"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="filters.flightsPerHour"
+            :items="flightsPerHourOptions"
+            label="Flights Per Hour"
+            variant="outlined"
+            class="filter-select"
+            :disabled="!filters.flightZone"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="filters.metric"
+            :items="metricOptions"
+            label="Metric"
+            variant="outlined"
+            class="filter-select"
+            :disabled="!filters.flightsPerHour"
+            item-title="title"
+            item-value="value"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+        </div>
       </div>
 
       <!-- Section 4: Cards -->
@@ -131,7 +119,6 @@
   <DocumentationOverlay :show="showDocOverlay" toolId="s1" @close="closeDocumentation" />
 </template>
 
-
 <script setup>
 const emit = defineEmits(['close'])
 import { ref, onMounted, watch, computed, onBeforeUnmount, nextTick } from 'vue'
@@ -146,11 +133,13 @@ const flightZoneOptions = ref([])
 const flightsPerHourOptions = ref([])
 const metricOptions = ref([])
 
-const selectedCity = ref("")
-const selectedTime = ref("")
-const selectedFlightZone = ref("")
-const selectedFlightsPerHour = ref("")
-const selectedMetric = ref("")
+const filters = ref({
+  city: null,
+  time: null,
+  flightZone: null,
+  flightsPerHour: null,
+  metric: null,
+})
 
 const availableCombos = ref({})
 
@@ -207,11 +196,11 @@ onMounted(async () => {
 })
 
 // Fetch times when city changes
-watch(selectedCity, async (newCity) => {
-  selectedTime.value = ''
-  selectedFlightZone.value = ''
-  selectedFlightsPerHour.value = ''
-  selectedMetric.value = ''
+watch(() => filters.value.city, async (newCity) => {
+  filters.value.time = null
+  filters.value.flightZone = null
+  filters.value.flightsPerHour = null
+  filters.value.metric = null
   timeOptions.value = []
   flightZoneOptions.value = []
   flightsPerHourOptions.value = []
@@ -226,16 +215,16 @@ watch(selectedCity, async (newCity) => {
 })
 
 // Fetch Flight Zones when City or Time changes
-watch([selectedCity, selectedTime], async ([newCity, newTime]) => {
-  selectedFlightZone.value = ''
-  selectedFlightsPerHour.value = ''
-  selectedMetric.value = ''
+watch(() => filters.value.time, async (newTime) => {
+  filters.value.flightZone = null
+  filters.value.flightsPerHour = null
+  filters.value.metric = null
   flightZoneOptions.value = []
   flightsPerHourOptions.value = []
   metricOptions.value = []
-  if (!newCity || !newTime) return
+  if (!filters.value.city || !newTime) return
   try {
-    const resp = await fetch(`/api/noise_assessment/api/noise_flight_zones?city=${encodeURIComponent(newCity)}&time=${encodeURIComponent(newTime)}`)
+    const resp = await fetch(`/api/noise_assessment/api/noise_flight_zones?city=${encodeURIComponent(filters.value.city)}&time=${encodeURIComponent(newTime)}`)
     flightZoneOptions.value = await resp.json()
   } catch (e) {
     flightZoneOptions.value = []
@@ -243,14 +232,14 @@ watch([selectedCity, selectedTime], async ([newCity, newTime]) => {
 })
 
 // Fetch Flights Per Hour when Flight Zone changes (with city/time)
-watch([selectedCity, selectedTime, selectedFlightZone], async ([newCity, newTime, newZone]) => {
-  selectedFlightsPerHour.value = ''
-  selectedMetric.value = ''
+watch(() => filters.value.flightZone, async (newZone) => {
+  filters.value.flightsPerHour = null
+  filters.value.metric = null
   flightsPerHourOptions.value = []
   metricOptions.value = []
-  if (!newCity || !newTime || !newZone) return
+  if (!filters.value.city || !filters.value.time || !newZone) return
   try {
-    const resp = await fetch(`/api/noise_assessment/api/noise_flights_per_hour?city=${encodeURIComponent(newCity)}&time=${encodeURIComponent(newTime)}&flight_zone=${encodeURIComponent(newZone)}`)
+    const resp = await fetch(`/api/noise_assessment/api/noise_flights_per_hour?city=${encodeURIComponent(filters.value.city)}&time=${encodeURIComponent(filters.value.time)}&flight_zone=${encodeURIComponent(newZone)}`)
     const data = await resp.json()
     flightsPerHourOptions.value = data.sort((a, b) => {
       const numA = parseInt(a, 10)
@@ -263,12 +252,12 @@ watch([selectedCity, selectedTime, selectedFlightZone], async ([newCity, newTime
 })
 
 // Fetch Metrics when Flights Per Hour changes
-watch([selectedCity, selectedTime, selectedFlightZone, selectedFlightsPerHour], async ([newCity, newTime, newZone, newFph]) => {
-  selectedMetric.value = ''
+watch(() => filters.value.flightsPerHour, async (newFph) => {
+  filters.value.metric = null
   metricOptions.value = []
-  if (!newCity || !newTime || !newZone || !newFph) return
+  if (!filters.value.city || !filters.value.time || !filters.value.flightZone || !newFph) return
   try {
-    const resp = await fetch(`/api/noise_assessment/api/noise_metrics?city=${encodeURIComponent(newCity)}&time=${encodeURIComponent(newTime)}&flight_zone=${encodeURIComponent(newZone)}&flights_per_hour=${encodeURIComponent(newFph)}`)
+    const resp = await fetch(`/api/noise_assessment/api/noise_metrics?city=${encodeURIComponent(filters.value.city)}&time=${encodeURIComponent(filters.value.time)}&flight_zone=${encodeURIComponent(filters.value.flightZone)}&flights_per_hour=${encodeURIComponent(newFph)}`)
     const metrics = await resp.json()
     const labelMap = {
       'Ambient': 'Ambient Noise',
@@ -283,22 +272,17 @@ watch([selectedCity, selectedTime, selectedFlightZone, selectedFlightsPerHour], 
 })
 
 // Fetch overlay info and boundaries when all filters are selected
-watch([
-  selectedCity,
-  selectedTime,
-  selectedFlightZone,
-  selectedFlightsPerHour,
-  selectedMetric
-], async ([city, time, zone, fph, metric]) => {
+watch(() => filters.value.metric, async (metric) => {
   overlayUrl.value = ''
   heatmapBounds.value = null
-  if (!city || !time || !zone || !fph || !metric) return
+  const { city, time, flightZone, flightsPerHour } = filters.value
+  if (!city || !time || !flightZone || !flightsPerHour || !metric) return
   try {
     const params = new URLSearchParams({
       city,
       time,
-      flight_zone: zone,
-      flights_per_hour: fph,
+      flight_zone: flightZone,
+      flights_per_hour: flightsPerHour,
       metric
     })
     const resp = await fetch(`/api/noise_assessment/api/noise_image_info?${params.toString()}`)
@@ -418,31 +402,96 @@ function closeDocumentation() {
   text-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
 
-/* Section 3: Filters */
+/* --- FILTER SECTION STYLING --- */
 .noise-assessment-section-filters {
-  flex: 0 0 auto;
-  padding: clamp(0.75rem, 2vh, 1.5rem) 0;
+  padding: 1.5rem 0;
 }
 
-.filters-card {
-  width: 100%;
-  max-width: 80%;
-  padding: 1rem;
-  background: transparent;
+.filters-row {
+  margin-top: 1%;
+  display: flex;
+  gap: 1.5rem;
+  width: 90%;
+  max-width: 1200px;
+  justify-content: center;
 }
 
-.filter-row { row-gap: 8px; 
-  /* Center Items */
-  align-items: center !important;
-  justify-content: center !important;
+.filter-select {
+  flex: 1;
+  min-width: 150px;
 }
+
+/* 1. CONTAINER STYLE */
 .filter-select :deep(.v-field) {
-  background: rgba(255,255,255,0.85);
-  border-radius: 14px;
+  background-color: #ffffff !important;
+  border-radius: 12px;
+  border: 1px solid rgba(20, 93, 160, 0.2); 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  min-height: 64px !important;
+  display: flex;
+  align-items: center;
 }
 
-.filter-select :deep(.v-label) { color: #0A2342; opacity: 0.9; }
-.filter-select :deep(.v-field__input) { color: #0A2342; }
+/* 2. HOVER EFFECT */
+.filter-select :deep(.v-field:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  border-color: #145DA0;
+}
+
+/* 3. FIXING THE LABELS (Truncation & Visibility) */
+
+/* General label style */
+.filter-select :deep(.v-label.v-field-label) {
+  color: #145DA0 !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  font-size: 1.3rem !important;
+  
+  /* CRITICAL: Allow label to expand fully */
+  max-width: none !important;
+  width: auto !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  text-overflow: clip !important; /* Stop the "..." */
+}
+
+/* THE FLOATING TITLE (Selected State) */
+.filter-select :deep(.v-label.v-field-label--floating) {
+  color: white !important; 
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  font-size: 1.3rem !important;
+
+  /* Position adjustments */
+  transform: translateY(-34px) scale(1) !important;
+  padding: 0 8px; /* More padding to cover border */
+  margin-left: -8px;
+  z-index: 100; /* Ensure it sits on top of everything */
+}
+
+/* The Selected Input Value */
+.filter-select :deep(.v-field__input) {
+  color: #145DA0 !important;
+  font-weight: 600;
+  font-size: 1.25rem !important; 
+}
+
+/* The dropdown arrow */
+.filter-select :deep(.v-field__append-inner .v-icon) {
+  color: #145DA0 !important;
+  opacity: 1;
+  font-size: 2rem; 
+}
+
+/* Disabled State */
+.filter-select :deep(.v-field--disabled) {
+  background-color: #e0e0e0 !important;
+  border: 1px solid #999;
+}
+
+/* --- END FILTER STYLING --- */
 
 /* Section 4: Cards */
 .noise-assessment-section-cards {
@@ -478,38 +527,15 @@ function closeDocumentation() {
   overflow: hidden;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .noise-assessment-section-header {
-    padding-top: clamp(0.5rem, 1.5vh, 1rem);
-    padding-bottom: clamp(0.25rem, 1vh, 0.5rem);
+@media (max-width: 960px) {
+  .filters-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
-  
-  .noise-assessment-section-title {
-    padding: clamp(0.25rem, 1vh, 0.5rem) 0;
-  }
-  
-  .ltr-letters {
-    font-size: clamp(1.25rem, 5vw, 2rem);
-  }
-  
-  .noise-assessment-section-filters {
-    padding: clamp(0.5rem, 1.5vh, 1rem) 0;
-  }
-  
-  .filters-card {
-    max-width: 90%;
-    padding: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .noise-assessment-section-cards {
-    padding-top: 0.5rem;
-  }
-  
-  .noise-assessment-cards-grid {
-    width: 95%;
+  .filter-select {
+    width: 100%;
+    max-width: 400px;
   }
 }
 

@@ -1,7 +1,6 @@
 <template>
   <div class="dashboard-bg">
     <div class="optimized-trajectories-container">
-      <!-- Section 1: Header -->
       <div class="optimized-trajectories-section optimized-trajectories-section-header">
         <v-btn icon class="back-arrow-btn" @click="$emit('close')">
           <v-icon>mdi-arrow-left</v-icon>
@@ -11,45 +10,72 @@
         </v-btn>
       </div>
 
-      <!-- Section 2: Title -->
       <div class="optimized-trajectories-section optimized-trajectories-section-title">
         <span class="ltr-letters-wrapper ltr-letters-animate">
           <span class="ltr-letters">Optimized Trajectories</span>
         </span>
       </div>
 
-      <!-- Section 3: Filters -->
       <div class="optimized-trajectories-section optimized-trajectories-section-filters">
-        <v-card class="filters-card refmap-card-inline" elevation="0">
+        <div class="filters-row">
           <v-select
-            v-model="selectedCase"
-            :items="caseOptions"
-            label="Select Case"
-            class="filter-select"
-            item-title="label"
-            item-value="id"
+            v-model="filters.area"
+            :items="availableAreas"
+            label="Area"
             variant="outlined"
-            density="comfortable"
-            hide-details="auto"
+            class="filter-select"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
           />
-        </v-card>
+          <v-select
+            v-model="filters.turbulence"
+            :items="availableTurbulence"
+            label="Turbulence Level"
+            variant="outlined"
+            class="filter-select"
+            :disabled="!filters.area"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="filters.takeoff"
+            :items="availableTakeoff"
+            label="Takeoff Vertiport"
+            variant="outlined"
+            class="filter-select"
+            :disabled="!filters.turbulence"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="filters.landing"
+            :items="availableLanding"
+            label="Landing Vertiport"
+            variant="outlined"
+            class="filter-select"
+            :disabled="!filters.takeoff"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+        </div>
       </div>
 
-      <!-- Section 4: Cards -->
       <div class="optimized-trajectories-section optimized-trajectories-section-cards">
         <div class="optimized-trajectories-cards-grid">
           <v-card elevation="0" class="refmap-card refmap-card-inline map-card-shell">
             <div class="map-card-body">
-              <template v-if="gifUrl">
+              <template v-if="selectedCasePath">
                 <div class="gif-controls">
                   <v-btn icon size="small" class="replay-btn" @click="replayGif" :title="'Replay'">
                     <v-icon size="20">mdi-replay</v-icon>
                   </v-btn>
                 </div>
-                <img :src="displayUrl" :alt="selectedCaseLabel" style="max-width:100%; max-height: 59vh; border-radius:1.5rem;" />
+                <img :src="displayUrl" style="max-width:100%; max-height: 59vh; border-radius:1.5rem;" />
               </template>
               <template v-else>
-                <div class="map-placeholder" style="color:#fff;">Select a case to preview the trajectory animation.</div>
+                <div class="map-placeholder" style="color:#fff;">
+                  Please select all filter parameters to view the trajectory animation.
+                </div>
               </template>
             </div>
           </v-card>
@@ -66,108 +92,108 @@ import DocumentationOverlay from './DocumentationOverlay.vue'
 
 const apiBase = '/api/optimized_trajectories'
 
-const caseOptions = ref([])
-const selectedCase = ref('')
-const loadError = ref(false)
-const gifBust = ref(0)
+// State
+const allCases = ref([])
+const filters = ref({
+  area: null,
+  turbulence: null,
+  takeoff: null,
+  landing: null
+})
+const gifBust = ref(Date.now())
 const isPlaying = ref(true)
-const pausedSrc = ref('')
 
-const selectedCaseLabel = computed(() => {
-  const c = caseOptions.value.find(x => x.id === selectedCase.value)
-  return c ? c.label : ''
+// --- Cascading Logic ---
+
+const availableAreas = computed(() => {
+  return [...new Set(allCases.value.map(c => c.area))].sort()
 })
 
-const gifUrl = computed(() => {
-  if (!selectedCase.value) return ''
-  return `${apiBase}/gif/${encodeURIComponent(selectedCase.value)}?t=${gifBust.value}`
+const availableTurbulence = computed(() => {
+  if (!filters.value.area) return []
+  const subset = allCases.value.filter(c => c.area === filters.value.area)
+  return [...new Set(subset.map(c => c.turbulence))].sort()
+})
+
+const availableTakeoff = computed(() => {
+  if (!filters.value.turbulence) return []
+  const subset = allCases.value.filter(c => 
+    c.area === filters.value.area && 
+    c.turbulence === filters.value.turbulence
+  )
+  return [...new Set(subset.map(c => c.takeoff))].sort()
+})
+
+const availableLanding = computed(() => {
+  if (!filters.value.takeoff) return []
+  const subset = allCases.value.filter(c => 
+    c.area === filters.value.area && 
+    c.turbulence === filters.value.turbulence &&
+    c.takeoff === filters.value.takeoff
+  )
+  return [...new Set(subset.map(c => c.landing))].sort()
+})
+
+// Determine the actual path of the GIF to load
+const selectedCasePath = computed(() => {
+  const match = allCases.value.find(c => 
+    c.area === filters.value.area &&
+    c.turbulence === filters.value.turbulence &&
+    c.takeoff === filters.value.takeoff &&
+    c.landing === filters.value.landing
+  )
+  return match ? match.id : null
 })
 
 const displayUrl = computed(() => {
-  return isPlaying.value ? gifUrl.value : (pausedSrc.value || gifUrl.value)
+  if (!selectedCasePath.value) return ''
+  return `${apiBase}/gif/${encodeURIComponent(selectedCasePath.value)}?t=${gifBust.value}`
 })
 
+// --- Watchers to reset children when parents change ---
+
+watch(() => filters.value.area, () => {
+  filters.value.turbulence = null; filters.value.takeoff = null; filters.value.landing = null
+})
+watch(() => filters.value.turbulence, () => {
+  filters.value.takeoff = null; filters.value.landing = null
+})
+watch(() => filters.value.takeoff, () => {
+  filters.value.landing = null
+})
+
+// --- Methods ---
+
 function replayGif() {
-  // Force GIF to restart by changing the cache-busting query
   gifBust.value = Date.now()
-  // If paused, keep it paused by re-capturing a still
-  if (!isPlaying.value) {
-    captureFirstFrame()
-  }
-}
-
-function togglePlay() {
-  if (isPlaying.value) {
-    // Going to pause: capture a still frame
-    isPlaying.value = false
-    captureFirstFrame()
-  } else {
-    // Resume animation by switching back to GIF
-    isPlaying.value = true
-    gifBust.value = Date.now()
-  }
-}
-
-function captureFirstFrame() {
-  // Create an offscreen image to draw the first frame
-  const img = new Image()
-  // Same-origin, but set crossOrigin defensively in case of proxies
-  img.crossOrigin = 'anonymous'
-  img.onload = () => {
-    try {
-      const canvas = document.createElement('canvas')
-      canvas.width = img.naturalWidth || img.width
-      canvas.height = img.naturalHeight || img.height
-      const ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0)
-      pausedSrc.value = canvas.toDataURL('image/png')
-    } catch (e) {
-      // If canvas fails, fall back to animated GIF
-      pausedSrc.value = ''
-      console.warn('Failed to capture first frame of GIF', e)
-    }
-  }
-  // Use a fresh bust to ensure we draw the first frame on load
-  const bust = Date.now()
-  img.src = `${apiBase}/gif/${encodeURIComponent(selectedCase.value)}?t=${bust}`
 }
 
 onMounted(async () => {
   try {
     const res = await fetch(`${apiBase}/cases`)
     const data = await res.json()
-    caseOptions.value = data.cases || []
-    if (data.default && caseOptions.value.some(c => c.id === data.default)) {
-      selectedCase.value = data.default
+    allCases.value = data.cases || []
+    
+    // Auto-select first available option
+    if (allCases.value.length > 0) {
+      const first = allCases.value[0]
+      filters.value.area = first.area
+      filters.value.turbulence = first.turbulence
+      filters.value.takeoff = first.takeoff
+      filters.value.landing = first.landing
     }
-    loadError.value = false
-    if (selectedCase.value) gifBust.value = Date.now()
   } catch (e) {
     console.error('Failed to load cases', e)
-    loadError.value = true
   }
 })
 
-// When the user selects a different case, refresh the GIF
-watch(selectedCase, (val) => {
-  if (val) gifBust.value = Date.now()
-  // Reset pause state on case change
-  isPlaying.value = true
-  pausedSrc.value = ''
-})
-
-// Doc overlay
+// Doc overlay logic
 const showDocOverlay = ref(false)
-function openDocumentation() {
-  showDocOverlay.value = true
-}
-function closeDocumentation() {
-  showDocOverlay.value = false
-}
+const openDocumentation = () => { showDocOverlay.value = true }
+const closeDocumentation = () => { showDocOverlay.value = false }
 </script>
 
 <style scoped>
-/* Optimized Trajectories Container */
 .optimized-trajectories-container {
   width: 100vw;
   max-width: 100vw;
@@ -178,7 +204,6 @@ function closeDocumentation() {
   margin-left: calc(-50vw + 50%);
 }
 
-/* Common section styling */
 .optimized-trajectories-section {
   width: 100vw;
   display: flex;
@@ -187,7 +212,6 @@ function closeDocumentation() {
   padding: 0 clamp(1rem, 3vw, 2rem);
 }
 
-/* Section 1: Header */
 .optimized-trajectories-section-header {
   flex: 0 0 auto;
   justify-content: space-between;
@@ -197,17 +221,7 @@ function closeDocumentation() {
   background: rgba(255,255,255,0.08);
   color: #fff;
   border: 1px solid rgba(255,255,255,0.25);
-  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-}
-
-/* Section 2: Title */
-.optimized-trajectories-section-title {
-  flex: 0 0 auto;
-}
-
-.ltr-letters-wrapper {
-  display: inline-block;
 }
 
 .ltr-letters {
@@ -217,283 +231,142 @@ function closeDocumentation() {
   text-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
 
-/* Section 3: Filters */
+/* --- FILTER SECTION STYLING --- */
 .optimized-trajectories-section-filters {
-  flex: 0 0 auto;
-  padding: clamp(0.75rem, 2vh, 1.5rem) 0;
+  padding: 1.5rem 0;
 }
 
-.filters-card {
-  width: 100%;
-  max-width: 25%;
-  padding: 1rem;
-  background: transparent;
-}
-
-.filter-select :deep(.v-field) {
-  background: rgba(255,255,255,0.85);
-  border-radius: 14px;
-}
-
-.filter-select :deep(.v-label) { color: #0A2342; opacity: 0.9; }
-.filter-select :deep(.v-field__input) { color: #0A2342; }
-
-/* Section 4: Cards */
-.optimized-trajectories-section-cards {
-  flex: 1 1 auto;
-  align-items: flex-start;
-  padding-bottom: clamp(1rem, 3vh, 2rem);
-}
-
-.optimized-trajectories-cards-grid {
+.filters-row {
+  margin-top: 1%;
   display: flex;
-  width: wrap;
-  max-width: 100%;
+  gap: 1.5rem;
+  width: 90%;
+  max-width: 1200px;
+  justify-content: center;
 }
 
+.filter-select {
+  flex: 1;
+  min-width: 150px;
+}
+
+/* 1. CONTAINER STYLE */
+.filter-select :deep(.v-field) {
+  background-color: #ffffff !important;
+  border-radius: 12px;
+  border: 1px solid rgba(20, 93, 160, 0.2); 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  min-height: 64px !important;
+  display: flex;
+  align-items: center;
+}
+
+/* 2. HOVER EFFECT */
+.filter-select :deep(.v-field:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  border-color: #145DA0;
+}
+
+/* 3. FIXING THE LABELS (Truncation & Visibility) */
+
+/* General label style */
+.filter-select :deep(.v-label.v-field-label) {
+  color: #145DA0 !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  font-size: 1.3rem !important;
+  
+  /* CRITICAL: Allow label to expand fully */
+  max-width: none !important;
+  width: auto !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  text-overflow: clip !important; /* Stop the "..." */
+}
+
+/* THE FLOATING TITLE (Selected State) */
+.filter-select :deep(.v-label.v-field-label--floating) {
+  color: white !important; 
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  font-size: 1.3rem !important;
+
+  /* Position adjustments */
+  transform: translateY(-34px) scale(1) !important;
+  padding: 0 8px; /* More padding to cover border */
+  margin-left: -8px;
+  z-index: 100; /* Ensure it sits on top of everything */
+}
+
+/* The Selected Input Value */
+.filter-select :deep(.v-field__input) {
+  color: #145DA0 !important;
+  font-weight: 600;
+  font-size: 1.25rem !important; 
+}
+
+/* The dropdown arrow */
+.filter-select :deep(.v-field__append-inner .v-icon) {
+  color: #145DA0 !important;
+  opacity: 1;
+  font-size: 2rem; 
+}
+
+/* Disabled State */
+.filter-select :deep(.v-field--disabled) {
+  background-color: #e0e0e0 !important;
+  border: 1px solid #999;
+}
+
+/* --- END FILTER STYLING --- */
+
+/* Map/GIF Display Area */
 .map-card-shell { 
-  padding: 0;
+  margin-top: 3%;
   width: 100%;
-  background-color: transparent !important;
-  border-color: transparent !important;
-  border-radius: 1.5rem;
+  background: transparent !important;
+  border-color: transparent;
 }
 
 .map-card-body {
   position: relative;
   width: 100%;
-  height: 100%;
-  min-height: 70vh;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.map-placeholder { opacity: 0.95; color: #fff; }
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .optimized-trajectories-section-header {
-    padding-top: clamp(0.5rem, 1.5vh, 1rem);
-    padding-bottom: clamp(0.25rem, 1vh, 0.5rem);
-  }
-  
-  .optimized-trajectories-section-title {
-    padding: clamp(0.25rem, 1vh, 0.5rem) 0;
-  }
-  
-  .ltr-letters {
-    font-size: clamp(1.25rem, 5vw, 2rem);
-  }
-  
-  .optimized-trajectories-section-filters {
-    padding: clamp(0.5rem, 1.5vh, 1rem) 0;
-  }
-  
-  .filters-card {
-    max-width: 90%;
-    padding: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .optimized-trajectories-section-cards {
-    padding-top: 0.5rem;
-  }
-  
-  .optimized-trajectories-cards-grid {
-    width: 95%;
-  }
-}
-
-/* Replay control overlay */
 .gif-controls {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
   z-index: 5;
 }
+
 .replay-btn {
   background: #fff !important;
   color: #145DA0 !important;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px #145DA044;
 }
 
-/* Documentation overlay */
-.doc-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  display: grid;
-  place-items: center;
-  z-index: 30;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.doc-card {
-  width: min(920px, 94vw);
-  height: 75vh;
-  background: rgba(255,255,255,0.98);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.8);
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  animation: slideUp 0.3s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+@media (max-width: 960px) {
+  .filters-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .filter-select {
+    width: 100%;
+    max-width: 400px;
   }
 }
-
-.doc-card-header {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(20,93,160,0.15);
-}
-
-.doc-card-tabs { 
-  display: flex; 
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.doc-tab {
-  background: rgba(20,93,160,0.08);
-  color: #0A2342;
-  border: 1px solid rgba(20,93,160,0.25);
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.doc-tab:hover {
-  background: rgba(20,93,160,0.15);
-  border-color: rgba(20,93,160,0.4);
-  transform: translateY(-1px);
-}
-
-.doc-tab.active { 
-  background: linear-gradient(135deg, #145DA0, #21CE99); 
-  color: #fff; 
-  border-color: transparent;
-  box-shadow: 0 4px 12px rgba(20,93,160,0.3);
-}
-
-.doc-close-btn { 
-  background: rgba(255,255,255,0.9);
-  color: #0A2342;
-  -webkit-backdrop-filter: blur(8px); 
-  backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
-}
-
-.doc-close-btn:hover {
-  background: rgba(255,255,255,1);
-  transform: rotate(90deg);
-}
-
-.doc-card-body { 
-  flex: 1 1 auto;
-  padding: 1.5rem 1.5rem 1.25rem;
-  color: #0A2342;
-  overflow-y: auto;
-  line-height: 1.7;
-}
-
-.doc-card-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.doc-card-body::-webkit-scrollbar-track {
-  background: rgba(20,93,160,0.05);
-  border-radius: 4px;
-}
-
-.doc-card-body::-webkit-scrollbar-thumb {
-  background: rgba(20,93,160,0.3);
-  border-radius: 4px;
-}
-
-.doc-card-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(20,93,160,0.5);
-}
-
-.doc-card-body h3 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #145DA0;
-}
-
-.doc-card-body h3:first-child {
-  margin-top: 0;
-}
-
-.doc-card-body h4 {
-  margin-top: 1.25rem;
-  margin-bottom: 0.6rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #0A2342;
-}
-
-.doc-card-body p {
-  margin-bottom: 1rem;
-  color: #2c3e50;
-}
-
-.doc-card-body ul {
-  margin-left: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.doc-card-body li {
-  margin-bottom: 0.6rem;
-  color: #2c3e50;
-}
-
-.doc-card-body li b {
-  color: #145DA0;
-  font-weight: 600;
-}
-
-.doc-card-body code {
-  background: rgba(20,93,160,0.1);
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
-  color: #145DA0;
-}
-
-.status-error { color: #ffb3b3; }
-.status-ok { color: #e8fff7; }
 </style>
 
-
+<style>
+.filter-menu-content .v-list-item-title {
+  font-size: 1.1rem !important; 
+  font-weight: 500 !important;
+  padding: 8px 0 !important;
+}
+</style>

@@ -20,61 +20,51 @@
 
       <!-- Section 3: Filters -->
       <div class="wind-assessment-section wind-assessment-section-filters">
-        <v-card class="filters-card refmap-card-inline" elevation="0">
-          <v-row class="filter-row" dense>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-select
-                v-model="selectedLoD"
-                :items="lodDisplayOptions"
-                label="Level of Detail"
-                class="filter-select"
-                item-title="label"
-                item-value="value"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-select
-                v-model="selectedCity"
-                :items="cityOptions"
-                label="City"
-                class="filter-select"
-                :disabled="!selectedLoD"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-select
-                v-model="selectedParameter"
-                :items="parameterOptions"
-                label="Parameter"
-                class="filter-select"
-                :disabled="!selectedCity"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-select
-                v-model="selectedAltitude"
-                :items="altitudeDisplayOptions"
-                label="Altitude"
-                class="filter-select"
-                :disabled="!selectedParameter"
-                item-title="label"
-                item-value="value"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-              />
-            </v-col>
-          </v-row>
-        </v-card>
+        <div class="filters-row">
+          <v-select
+            v-model="filters.lod"
+            :items="lodDisplayOptions"
+            label="Level of Detail"
+            variant="outlined"
+            class="filter-select"
+            item-title="label"
+            item-value="value"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="filters.city"
+            :items="cityOptions"
+            label="City"
+            variant="outlined"
+            class="filter-select"
+            :disabled="!filters.lod"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="filters.parameter"
+            :items="parameterOptions"
+            label="Parameter"
+            variant="outlined"
+            class="filter-select"
+            :disabled="!filters.city"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="filters.altitude"
+            :items="altitudeDisplayOptions"
+            label="Altitude"
+            variant="outlined"
+            class="filter-select"
+            :disabled="!filters.parameter"
+            item-title="label"
+            item-value="value"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+        </div>
       </div>
 
       <!-- Section 4: Cards -->
@@ -107,7 +97,7 @@
                 </LMap>
               </template>
               <!-- Wind knob overlay in map area -->
-              <div v-if="selectedAltitude" class="wind-knob-wrapper wind-knob-overlay">
+              <div v-if="filters.altitude" class="wind-knob-wrapper wind-knob-overlay">
                 <div class="wind-knob-value" style="margin-bottom: 0.3rem; font-weight: bold;">Wind Source</div>
                 <svg
                   :width="knobSize"
@@ -149,10 +139,10 @@
                   <span style="margin-left:0.5em;">{{ windDirectionLabel }}</span>
                 </div>
               </div>
-              <div v-if="selectedAltitude && (selectedParameter === 'Turbulence Level' || selectedParameter === 'Wind Speed')" class="color-bar-container">
-                <div class="color-bar-label color-bar-label-left">{{ colorBarMin !== '-' ? colorBarMin : (selectedParameter === 'Turbulence Level' || selectedParameter === 'Wind Speed' ? '0m/s' : '-') }}</div>
+              <div v-if="filters.altitude && (filters.parameter === 'Turbulence Level' || filters.parameter === 'Wind Speed')" class="color-bar-container">
+                <div class="color-bar-label color-bar-label-left">{{ colorBarMin !== '-' ? colorBarMin : (filters.parameter === 'Turbulence Level' || filters.parameter === 'Wind Speed' ? '0m/s' : '-') }}</div>
                 <div class="color-bar-overlay" :style="{ background: colorBarGradient }"></div>
-                <div class="color-bar-label color-bar-label-right">{{ colorBarMax !== '-' ? colorBarMax : (selectedParameter === 'Turbulence Level' ? '8%' : selectedParameter === 'Wind Speed' ? '5m/s' : '-') }}</div>  
+                <div class="color-bar-label color-bar-label-right">{{ colorBarMax !== '-' ? colorBarMax : (filters.parameter === 'Turbulence Level' ? '8%' : filters.parameter === 'Wind Speed' ? '5m/s' : '-') }}</div>  
               </div>
             </div>
           </v-card>
@@ -193,10 +183,12 @@ const lodDisplayOptions = computed(() => {
 })
 const windOptions = ref([])
 
-const selectedLoD = ref("")
-const selectedCity = ref("")
-const selectedParameter = ref("")
-const selectedAltitude = ref("")
+const filters = ref({
+  lod: null,
+  city: null,
+  parameter: null,
+  altitude: null,
+})
 const selectedWindDirection = ref(0); // This will be the wind index
 
 const knobSize = 120
@@ -245,10 +237,10 @@ onMounted(async () => {
 })
 
 // Update city options when LoD changes
-watch(selectedLoD, (newLoD) => {
-  selectedCity.value = ''
-  selectedParameter.value = ''
-  selectedAltitude.value = ''
+watch(() => filters.value.lod, (newLoD) => {
+  filters.value.city = null
+  filters.value.parameter = null
+  filters.value.altitude = null
   selectedWindDirection.value = 0
   cityOptions.value = []
   parameterOptions.value = []
@@ -259,37 +251,37 @@ watch(selectedLoD, (newLoD) => {
 })
 
 // Update parameter options when City changes
-watch([selectedLoD, selectedCity], ([newLoD, newCity]) => {
-  selectedParameter.value = ''
-  selectedAltitude.value = ''
+watch(() => filters.value.city, (newCity) => {
+  filters.value.parameter = null
+  filters.value.altitude = null
   selectedWindDirection.value = 0
   parameterOptions.value = []
   altitudeOptions.value = []
   windOptions.value = []
-  if (!newLoD || !newCity || !availableCombos.value[newLoD]?.[newCity]) return
+  if (!filters.value.lod || !newCity || !availableCombos.value[filters.value.lod]?.[newCity]) return
   // Gather all unique params for this city
-  const combos = availableCombos.value[newLoD][newCity].combinations || []
+  const combos = availableCombos.value[filters.value.lod][newCity].combinations || []
   parameterOptions.value = [...new Set(combos.map(c => c.param))]
 })
 
 // Update altitude options when Parameter changes
-watch([selectedLoD, selectedCity, selectedParameter], ([newLoD, newCity, newParam]) => {
-  selectedAltitude.value = ''
+watch(() => filters.value.parameter, (newParam) => {
+  filters.value.altitude = null
   selectedWindDirection.value = 0
   altitudeOptions.value = []
   windOptions.value = []
-  if (!newLoD || !newCity || !newParam || !availableCombos.value[newLoD]?.[newCity]) return
-  const combos = availableCombos.value[newLoD][newCity].combinations || []
+  if (!filters.value.lod || !filters.value.city || !newParam || !availableCombos.value[filters.value.lod]?.[filters.value.city]) return
+  const combos = availableCombos.value[filters.value.lod][filters.value.city].combinations || []
   altitudeOptions.value = [...new Set(combos.filter(c => c.param === newParam).map(c => c.zloc))]
 })
 
 // Update wind options when Altitude changes
-watch([selectedLoD, selectedCity, selectedParameter, selectedAltitude], ([newLoD, newCity, newParam, newAlt]) => {
+watch(() => filters.value.altitude, (newAlt) => {
   selectedWindDirection.value = 0
   windOptions.value = []
-  if (!newLoD || !newCity || !newParam || !newAlt || !availableCombos.value[newLoD]?.[newCity]) return
-  const combos = availableCombos.value[newLoD][newCity].combinations || []
-  const combo = combos.find(c => c.param === newParam && c.zloc === newAlt)
+  if (!filters.value.lod || !filters.value.city || !filters.value.parameter || !newAlt || !availableCombos.value[filters.value.lod]?.[filters.value.city]) return
+  const combos = availableCombos.value[filters.value.lod][filters.value.city].combinations || []
+  const combo = combos.find(c => c.param === filters.value.parameter && c.zloc === newAlt)
   windOptions.value = combo ? combo.winds : []
 })
 
@@ -412,10 +404,10 @@ const colorBarMax = ref('-')
 
 // Fetch overlay info when all filters are selected
 watch([
-  selectedLoD,
-  selectedCity,
-  selectedParameter,
-  selectedAltitude,
+  () => filters.value.lod,
+  () => filters.value.city,
+  () => filters.value.parameter,
+  () => filters.value.altitude,
   selectedWindDirection
 ], async ([lod, city, param, zloc, wind]) => {
   if (!lod || !city || !param || !zloc || wind === '' || wind === null || wind === undefined) {
@@ -437,7 +429,7 @@ watch([
     }
     heatmapBounds.value = data.bounds
     // Remove dynamic min/max for Turbulence Level and Wind Speed
-    if (!(selectedParameter.value === 'Turbulence Level' || selectedParameter.value === 'Wind Speed')) {
+    if (!(filters.value.parameter === 'Turbulence Level' || filters.value.parameter === 'Wind Speed')) {
       colorBarMin.value = data.minVal
       colorBarMax.value = data.maxVal
     }
@@ -471,10 +463,10 @@ watch(heatmapBounds, async (newBounds) => {
 
 // --- Dynamic colorbar gradient ---
 const colorBarGradient = computed(() => {
-  if (selectedParameter.value === 'Turbulence Level') {
+  if (filters.value.parameter === 'Turbulence Level') {
     return 'linear-gradient(to right, #00ff00 0%, #800080 100%)'; // green to purple, horizontal
   }
-  if (selectedParameter.value === 'Wind Speed') {
+  if (filters.value.parameter === 'Wind Speed') {
     return 'linear-gradient(to right, #ff2d55 0%, #0052cc 100%)'; // red to blue, horizontal
   }
   // Default: white to red, horizontal
@@ -482,7 +474,7 @@ const colorBarGradient = computed(() => {
 })
 
 // --- Color bar min/max for Turbulence Level and Wind Speed ---
-watch(selectedParameter, (param) => {
+watch(() => filters.value.parameter, (param) => {
   if (param === 'Turbulence Level') {
     colorBarMin.value = '0%'
     colorBarMax.value = '8%'
@@ -561,28 +553,96 @@ function openDocumentation_old() {
   text-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
 
-/* Section 3: Filters */
+/* --- FILTER SECTION STYLING --- */
 .wind-assessment-section-filters {
-  flex: 0 0 auto;
-  padding: clamp(0.75rem, 2vh, 1.5rem) 0;
+  padding: 1.5rem 0;
 }
 
-.filters-card {
-  width: 100%;
-  max-width: 60%;
-  padding: 1rem;
-  background: transparent;
+.filters-row {
+  margin-top: 1%;
+  display: flex;
+  gap: 1.5rem;
+  width: 90%;
+  max-width: 1200px;
+  justify-content: center;
 }
 
-.filter-row { row-gap: 8px; }
+.filter-select {
+  flex: 1;
+  min-width: 150px;
+}
 
+/* 1. CONTAINER STYLE */
 .filter-select :deep(.v-field) {
-  background: rgba(255,255,255,0.85);
-  border-radius: 14px;
+  background-color: #ffffff !important;
+  border-radius: 12px;
+  border: 1px solid rgba(20, 93, 160, 0.2); 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  min-height: 64px !important;
+  display: flex;
+  align-items: center;
 }
 
-.filter-select :deep(.v-label) { color: #0A2342; opacity: 0.9; }
-.filter-select :deep(.v-field__input) { color: #0A2342; }
+/* 2. HOVER EFFECT */
+.filter-select :deep(.v-field:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  border-color: #145DA0;
+}
+
+/* 3. FIXING THE LABELS (Truncation & Visibility) */
+
+/* General label style */
+.filter-select :deep(.v-label.v-field-label) {
+  color: #145DA0 !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  font-size: 1.3rem !important;
+  
+  /* CRITICAL: Allow label to expand fully */
+  max-width: none !important;
+  width: auto !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  text-overflow: clip !important; /* Stop the "..." */
+}
+
+/* THE FLOATING TITLE (Selected State) */
+.filter-select :deep(.v-label.v-field-label--floating) {
+  color: white !important; 
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  font-size: 1.3rem !important;
+
+  /* Position adjustments */
+  transform: translateY(-34px) scale(1) !important;
+  padding: 0 8px; /* More padding to cover border */
+  margin-left: -8px;
+  z-index: 100; /* Ensure it sits on top of everything */
+}
+
+/* The Selected Input Value */
+.filter-select :deep(.v-field__input) {
+  color: #145DA0 !important;
+  font-weight: 600;
+  font-size: 1.25rem !important; 
+}
+
+/* The dropdown arrow */
+.filter-select :deep(.v-field__append-inner .v-icon) {
+  color: #145DA0 !important;
+  opacity: 1;
+  font-size: 2rem; 
+}
+
+/* Disabled State */
+.filter-select :deep(.v-field--disabled) {
+  background-color: #e0e0e0 !important;
+  border: 1px solid #999;
+}
+
+/* --- END FILTER STYLING --- */
 
 /* Section 4: Cards */
 .wind-assessment-section-cards {
@@ -618,38 +678,15 @@ function openDocumentation_old() {
   overflow: hidden;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .wind-assessment-section-header {
-    padding-top: clamp(0.5rem, 1.5vh, 1rem);
-    padding-bottom: clamp(0.25rem, 1vh, 0.5rem);
+@media (max-width: 960px) {
+  .filters-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
-  
-  .wind-assessment-section-title {
-    padding: clamp(0.25rem, 1vh, 0.5rem) 0;
-  }
-  
-  .ltr-letters {
-    font-size: clamp(1.25rem, 5vw, 2rem);
-  }
-  
-  .wind-assessment-section-filters {
-    padding: clamp(0.5rem, 1.5vh, 1rem) 0;
-  }
-  
-  .filters-card {
-    max-width: 90%;
-    padding: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .wind-assessment-section-cards {
-    padding-top: 0.5rem;
-  }
-  
-  .wind-assessment-cards-grid {
-    width: 95%;
+  .filter-select {
+    width: 100%;
+    max-width: 400px;
   }
 }
 

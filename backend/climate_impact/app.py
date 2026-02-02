@@ -6,9 +6,13 @@ import numpy as np
 from netCDF4 import Dataset
 from datetime import datetime, timedelta
 import traceback
+import threading
 from flask import Flask, jsonify, request, send_from_directory, send_file
 
 app = Flask(__name__)
+
+# Thread lock for NetCDF file access (prevents concurrent access issues)
+netcdf_lock = threading.Lock()
 
 # Get the directory where this script (app.py) is located
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -194,29 +198,32 @@ def get_netcdf_metadata():
         nc_path = os.path.join(data_dir, file_base + '.nc')
         if not os.path.exists(nc_path):
             return jsonify({'error': f"NetCDF file not found: {file_base}.nc"}), 404
-        with Dataset(nc_path, 'r') as ds:
-            # Try to find altitude and time variables
-            alt_keys = [k for k in ds.variables.keys() if k.lower() in ['altitude', 'alt', 'level', 'lev', 'flightlevel', 'fl']]
-            time_keys = [k for k in ds.variables.keys() if k.lower() in ['time', 't']]
-            altitudes = ds.variables[alt_keys[0]][:].tolist() if alt_keys else []
-            times = ds.variables[time_keys[0]][:].tolist() if time_keys else []
-            # Try to get lon/lat bounds
-            lon_keys = [k for k in ds.variables.keys() if k.lower() in ['lon', 'longitude']]
-            lat_keys = [k for k in ds.variables.keys() if k.lower() in ['lat', 'latitude']]
-            lon_min = float(ds.variables[lon_keys[0]][:].min()) if lon_keys else None
-            lon_max = float(ds.variables[lon_keys[0]][:].max()) if lon_keys else None
-            lat_min = float(ds.variables[lat_keys[0]][:].min()) if lat_keys else None
-            lat_max = float(ds.variables[lat_keys[0]][:].max()) if lat_keys else None
-            # Try to get overall min/max for the main variable (first 2D/3D var that's not coord)
-            main_var = None
-            for vname, var in ds.variables.items():
-                if vname.lower() in ['time', 'altitude', 'alt', 'level', 'lev', 'flightlevel', 'fl', 'lon', 'longitude', 'lat', 'latitude']:
-                    continue
-                if hasattr(var, 'ndim') and var.ndim >= 2:
-                    main_var = var
-                    break
-            overall_min_value = float(main_var[:].min()) if main_var is not None else None
-            overall_max_value = float(main_var[:].max()) if main_var is not None else None
+        
+        # Use lock to prevent concurrent file access issues
+        with netcdf_lock:
+            with Dataset(nc_path, 'r') as ds:
+                # Try to find altitude and time variables
+                alt_keys = [k for k in ds.variables.keys() if k.lower() in ['altitude', 'alt', 'level', 'lev', 'flightlevel', 'fl']]
+                time_keys = [k for k in ds.variables.keys() if k.lower() in ['time', 't']]
+                altitudes = ds.variables[alt_keys[0]][:].tolist() if alt_keys else []
+                times = ds.variables[time_keys[0]][:].tolist() if time_keys else []
+                # Try to get lon/lat bounds
+                lon_keys = [k for k in ds.variables.keys() if k.lower() in ['lon', 'longitude']]
+                lat_keys = [k for k in ds.variables.keys() if k.lower() in ['lat', 'latitude']]
+                lon_min = float(ds.variables[lon_keys[0]][:].min()) if lon_keys else None
+                lon_max = float(ds.variables[lon_keys[0]][:].max()) if lon_keys else None
+                lat_min = float(ds.variables[lat_keys[0]][:].min()) if lat_keys else None
+                lat_max = float(ds.variables[lat_keys[0]][:].max()) if lat_keys else None
+                # Try to get overall min/max for the main variable (first 2D/3D var that's not coord)
+                main_var = None
+                for vname, var in ds.variables.items():
+                    if vname.lower() in ['time', 'altitude', 'alt', 'level', 'lev', 'flightlevel', 'fl', 'lon', 'longitude', 'lat', 'latitude']:
+                        continue
+                    if hasattr(var, 'ndim') and var.ndim >= 2:
+                        main_var = var
+                        break
+                overall_min_value = float(main_var[:].min()) if main_var is not None else None
+                overall_max_value = float(main_var[:].max()) if main_var is not None else None
         return jsonify({
             'altitudes': altitudes,
             'times': times,

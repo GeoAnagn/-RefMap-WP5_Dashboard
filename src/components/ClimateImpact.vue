@@ -12,7 +12,7 @@
       </div>
 
       <!-- Section 2: Title -->
-      <div class="climate-section climate-section-title">
+            <div class="climate-section-title">
         <span class="ltr-letters-wrapper ltr-letters-animate">
           <span class="ltr-letters">Climate Impact</span>
         </span>
@@ -20,34 +20,73 @@
 
       <!-- Section 3: Filters -->
       <div class="climate-section climate-section-filters">
-        <v-card class="filters-card refmap-card-inline" elevation="0">
-        <v-row class="filter-row" dense>
-          <v-col cols="12" sm="6" md="4" lg="2">
-            <v-select v-model="selectedDateDisplay" :items="dateOptionsDisplay" label="Date" class="filter-select"
-              variant="outlined" density="comfortable" hide-details="auto" />
-          </v-col>
-          <v-col cols="12" sm="6" md="4" lg="2">
-            <v-select v-model="selectedDataTypeDisplay" :items="dataTypeOptionsDisplay" label="Data Type" class="filter-select"
-              :disabled="!selectedDate" variant="outlined" density="comfortable" hide-details="auto" />
-          </v-col>
-          <v-col cols="12" sm="6" md="4" lg="2">
-            <v-select v-model="selectedScaleOrdered" :items="scaleOptionsOrdered" label="Scale" class="filter-select"
-              :disabled="!selectedDataType" variant="outlined" density="comfortable" hide-details="auto" />
-          </v-col>
-          <v-col cols="12" sm="6" md="4" lg="2">
-            <v-select v-model="selectedCostDisplay" :items="costOptionsDisplay" label="Cost" class="filter-select"
-              :disabled="!selectedScale" variant="outlined" density="comfortable" hide-details="auto" />
-          </v-col>
-          <v-col cols="12" sm="6" md="4" lg="2">
-            <v-select v-model="selectedFlightLevel" :items="flightLevelOptions" label="Flight Level" class="filter-select"
-              :disabled="!selectedCost" variant="outlined" density="comfortable" hide-details="auto" />
-          </v-col>
-          <v-col cols="12" sm="6" md="4" lg="2">
-            <v-select v-model="selectedTimeDisplay" :items="timeOptionsDisplay" label="Time" class="filter-select"
-              :disabled="!selectedFlightLevel" variant="outlined" density="comfortable" hide-details="auto" />
-          </v-col>
-        </v-row>
-      </v-card>
+        <div class="filters-row">
+          <v-select
+            v-model="selectedDateDisplay"
+            :items="dateOptionsDisplay"
+            label="Date"
+            class="filter-select"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="selectedDataTypeDisplay"
+            :items="dataTypeOptionsDisplay"
+            label="Data Type"
+            class="filter-select"
+            :disabled="!selectedDate"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="selectedScaleOrdered"
+            :items="scaleOptionsOrdered"
+            label="Scale"
+            class="filter-select"
+            :disabled="!selectedDataType"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="selectedCostDisplay"
+            :items="costOptionsDisplay"
+            label="Cost"
+            class="filter-select"
+            :disabled="!selectedScale"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="selectedFlightLevel"
+            :items="flightLevelOptions"
+            label="Flight Level"
+            class="filter-select"
+            :disabled="!selectedCost"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+          <v-select
+            v-model="selectedTimeDisplay"
+            :items="timeOptionsDisplay"
+            label="Time"
+            class="filter-select"
+            :disabled="!selectedFlightLevel"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }"
+          />
+        </div>
       </div>
 
       <!-- Section 4: Cards -->
@@ -55,36 +94,40 @@
         <div class="climate-cards-grid">
           <div class="climate-card-wrapper pie-card">
             <v-card elevation="6" class="refmap-card refmap-card-inline scrollable-pie-card">
-            <div v-for="(bar, idx) in barCharts" :key="idx" class="pie-chart-wrapper">
-              <VuePlotly :data="bar.data" :layout="bar.layout" :config="{ displayModeBar: false }"
-                style="width:100%;height:100%;max-width:100%;" />
-              <hr v-if="idx < barCharts.length - 1"
-                style="width:90%;border:0;border-top:2px solid #eee;margin:1.2rem auto;opacity:0.7;" />
-            </div>
-          </v-card>
+              <div v-for="(bar, idx) in barCharts" :key="idx" class="pie-chart-wrapper">
+                <VuePlotly
+                  :data="bar.data"
+                  :layout="bar.layout"
+                  :config="{ displayModeBar: false, responsive: true }"
+                  :useResizeHandler="true"
+                  style="width:100%;height:240px;"
+                />
+                <hr v-if="idx < barCharts.length - 1"
+                  style="border:0;border-top:2px solid #eee;margin:1.2rem auto;opacity:0.7;" />
+              </div>
+            </v-card>
           </div>
           <div class="climate-card-wrapper map-card">
             <v-card elevation="6" class="refmap-card refmap-card-inline map-card-shell">
-            <div class="map-card-body">
-              <template v-if="showMap">
-                <LMap :zoom="5" :center="mapCenter" :minZoom="minZoom" :maxZoom="maxZoom" :maxBounds="europeBounds"
-                  :use-global-leaflet="false"
-                  class="map-leaflet">
-                  <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors" />
-                  <LImageOverlay v-if="heatmapImageUrl && heatmapBounds" :url="heatmapImageUrl" :bounds="heatmapBounds"
-                    :opacity="0.7" />
-                </LMap>
-              </template>
-              <div
-                v-if="selectedDate && selectedDataType && selectedScale && selectedCost && selectedFlightLevel && selectedTime"
-                class="color-bar-container horizontal">
-                <div class="color-bar-label color-bar-label-left">{{ colorBarMin }}</div>
-                <div class="color-bar-overlay" :style="{ background: colorBarGradient }"></div>
-                <div class="color-bar-label color-bar-label-right">{{ colorBarMax }}</div>
+              <div class="map-card-body">
+                <template v-if="showMap">
+                  <LMap :zoom="5" :center="mapCenter" :minZoom="minZoom" :maxZoom="maxZoom" :maxBounds="europeBounds"
+                    :use-global-leaflet="false" class="map-leaflet">
+                    <LTileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                    attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>" />
+                    <LImageOverlay v-if="heatmapImageUrl && heatmapBounds" :url="heatmapImageUrl"
+                      :bounds="heatmapBounds" :opacity="0.7" />
+                  </LMap>
+                </template>
+                <div
+                  v-if="selectedDate && selectedDataType && selectedScale && selectedCost && selectedFlightLevel && selectedTime"
+                  class="color-bar-container horizontal">
+                  <div class="color-bar-label color-bar-label-left">{{ colorBarMinLabel }}</div>
+                  <div class="color-bar-overlay" :style="{ background: colorBarGradient }"></div>
+                  <div class="color-bar-label color-bar-label-right">{{ colorBarMaxLabel }}</div>
+                </div>
               </div>
-            </div>
-          </v-card>
+            </v-card>
           </div>
         </div>
       </div>
@@ -114,7 +157,7 @@ const selectedScale = ref('')
 const selectedCost = ref('')
 
 const heatmapImageUrl = ref('')
-const heatmapBounds = ref(null) 
+const heatmapBounds = ref(null)
 
 const europeBounds = [
   [34.5, -11.25], // Southwest (lat, lng)
@@ -263,9 +306,10 @@ watch(selectedCost, async (newCost) => {
     timeOptions.value = []
     selectedFlightLevel.value = ''
     selectedTime.value = ''
+    heatmapImageUrl.value = ''
     heatmapBounds.value = null
-    colorBarMinRaw.value = '-'
-    colorBarMaxRaw.value = '-'
+    colorBarMinRaw.value = COLOR_BAR_MIN_VALUE
+    colorBarMaxRaw.value = COLOR_BAR_MAX_VALUE
     return
   }
   try {
@@ -296,24 +340,17 @@ watch(selectedCost, async (newCost) => {
     } else {
       heatmapBounds.value = null
     }
-    if (typeof metaData.overall_min_value === 'number' || typeof metaData.overall_min_value === 'string') {
-      colorBarMinRaw.value = metaData.overall_min_value
-    } else {
-      colorBarMinRaw.value = '-'
-    }
-    if (typeof metaData.overall_max_value === 'number' || typeof metaData.overall_max_value === 'string') {
-      colorBarMaxRaw.value = metaData.overall_max_value
-    } else {
-      colorBarMaxRaw.value = '-'
-    }
+    // Always use fixed colorbar range
+    colorBarMinRaw.value = COLOR_BAR_MIN_VALUE
+    colorBarMaxRaw.value = COLOR_BAR_MAX_VALUE
   } catch (e) {
     flightLevelOptions.value = []
     timeOptions.value = []
     selectedFlightLevel.value = ''
     selectedTime.value = ''
     heatmapBounds.value = null
-    colorBarMinRaw.value = '-'
-    colorBarMaxRaw.value = '-'
+    colorBarMinRaw.value = COLOR_BAR_MIN_VALUE
+    colorBarMaxRaw.value = COLOR_BAR_MAX_VALUE
   }
 })
 
@@ -378,8 +415,11 @@ const selectedDataTypeLabel = computed(() => {
 })
 
 // --- Heatmap color bar min/max ---
-const colorBarMinRaw = ref('-')
-const colorBarMaxRaw = ref('-')
+const COLOR_BAR_MIN_VALUE = -2e-9
+const COLOR_BAR_MAX_VALUE = 2e9
+
+const colorBarMinRaw = ref(COLOR_BAR_MIN_VALUE)
+const colorBarMaxRaw = ref(COLOR_BAR_MAX_VALUE)
 
 function formatSci(val) {
   if (val === '-' || val === '' || val == null) return '-';
@@ -391,6 +431,60 @@ function formatSci(val) {
 
 const colorBarMin = computed(() => formatSci(colorBarMinRaw.value));
 const colorBarMax = computed(() => formatSci(colorBarMaxRaw.value));
+
+const colorBarMinLabel = computed(() => `${colorBarMin.value} K`);
+const colorBarMaxLabel = computed(() => `${colorBarMax.value} K`);
+
+// Layout helper to keep bar plots full-width and hide axes lines
+function makeBarLayout(title, tickvals = [], xData = []) {
+  const nums = Array.isArray(xData) ? xData.filter(v => typeof v === 'number' && !isNaN(v)) : [];
+  let min = Math.min(0, ...nums);
+  let max = Math.max(0, ...nums);
+  if (min === max) {
+    const pad = Math.abs(min || 1) * 0.1;
+    min -= pad;
+    max += pad;
+  } else {
+    const span = max - min;
+    const pad = span * 0.1;
+    min -= pad;
+    max += pad;
+  }
+  return {
+    autosize: true,
+    title: { text: title, font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
+    yaxis: {
+      title: 'Increase in Cost (%)',
+      tickvals,
+      color: '#fff',
+      tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+      titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+      showgrid: false,
+      gridcolor: 'rgba(0,0,0,0)',
+      zeroline: false,
+      zerolinecolor: 'rgba(0,0,0,0)',
+      showline: false,
+      linecolor: 'rgba(0,0,0,0)'
+    },
+    xaxis: {
+      title: 'Change vs BAU (%)',
+      range: [min, max],
+      color: '#fff',
+      tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+      titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+      showgrid: false,
+      gridcolor: 'rgba(0,0,0,0)',
+      zeroline: false,
+      zerolinecolor: 'rgba(0,0,0,0)',
+      showline: false,
+      linecolor: 'rgba(0,0,0,0)'
+    },
+    margin: { t: 50, b: 40, l: 60, r: 20 },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    showlegend: false
+  };
+}
 
 
 // Function to generate distinct colors for any number of categories
@@ -421,12 +515,34 @@ const barCharts = ref([
         + '<span style="color:#21CE99;font-size:1.05em;">Change vs BAU:</span> <b style="color:#ff2d55;">%{x:.2f}%</b>'
         + '</div><extra></extra>',
     }],
-    layout: {
-      height: 200,
-      width: 320,
+      layout: {
+        autosize: true,
       title: { text: 'Net ATR', font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
-      yaxis: { title: 'Increase in Cost (%)', tickvals: [], color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
-      xaxis: { title: 'Change vs BAU (%)', color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
+      yaxis: {
+        title: 'Increase in Cost (%)',
+        tickvals: [],
+        color: '#fff',
+        tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+        titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+        showgrid: false,
+        gridcolor: 'rgba(0,0,0,0)',
+        zeroline: false,
+        zerolinecolor: 'rgba(0,0,0,0)',
+        showline: false,
+        linecolor: 'rgba(0,0,0,0)'
+      },
+      xaxis: {
+        title: 'Change vs BAU (%)',
+        color: '#fff',
+        tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+        titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+        showgrid: false,
+        gridcolor: 'rgba(0,0,0,0)',
+        zeroline: false,
+        zerolinecolor: 'rgba(0,0,0,0)',
+        showline: false,
+        linecolor: 'rgba(0,0,0,0)'
+      },
       margin: { t: 50, b: 40, l: 60, r: 20 },
       paper_bgcolor: 'rgba(0,0,0,0)',
       plot_bgcolor: 'rgba(0,0,0,0)',
@@ -451,12 +567,34 @@ const barCharts = ref([
         + '<span style="color:#21CE99;font-size:1.05em;">Change vs BAU:</span> <b style="color:#ff2d55;">%{x:.2f}%</b>'
         + '</div><extra></extra>',
     }],
-    layout: {
-      height: 200,
-      width: 320,
+      layout: {
+        autosize: true,
       title: { text: 'NOx', font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
-      yaxis: { title: 'Increase in Cost (%)', tickvals: [], color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
-      xaxis: { title: 'Change vs BAU (%)', color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
+      yaxis: {
+        title: 'Increase in Cost (%)',
+        tickvals: [],
+        color: '#fff',
+        tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+        titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+        showgrid: false,
+        gridcolor: 'rgba(0,0,0,0)',
+        zeroline: false,
+        zerolinecolor: 'rgba(0,0,0,0)',
+        showline: false,
+        linecolor: 'rgba(0,0,0,0)'
+      },
+      xaxis: {
+        title: 'Change vs BAU (%)',
+        color: '#fff',
+        tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+        titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+        showgrid: false,
+        gridcolor: 'rgba(0,0,0,0)',
+        zeroline: false,
+        zerolinecolor: 'rgba(0,0,0,0)',
+        showline: false,
+        linecolor: 'rgba(0,0,0,0)'
+      },
       margin: { t: 50, b: 40, l: 60, r: 20 },
       paper_bgcolor: 'rgba(0,0,0,0)',
       plot_bgcolor: 'rgba(0,0,0,0)',
@@ -476,12 +614,34 @@ const barCharts = ref([
       textposition: 'auto',
       textfont: { color: '#fff', size: 14 },
     }],
-    layout: {
-      height: 200,
-      width: 320,
+      layout: {
+        autosize: true,
       title: { text: 'H₂O', font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
-      yaxis: { title: 'Increase in Cost (%)', tickvals: [], color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
-      xaxis: { title: 'Change vs BAU (%)', color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
+      yaxis: {
+        title: 'Increase in Cost (%)',
+        tickvals: [],
+        color: '#fff',
+        tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+        titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+        showgrid: false,
+        gridcolor: 'rgba(0,0,0,0)',
+        zeroline: false,
+        zerolinecolor: 'rgba(0,0,0,0)',
+        showline: false,
+        linecolor: 'rgba(0,0,0,0)'
+      },
+      xaxis: {
+        title: 'Change vs BAU (%)',
+        color: '#fff',
+        tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+        titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+        showgrid: false,
+        gridcolor: 'rgba(0,0,0,0)',
+        zeroline: false,
+        zerolinecolor: 'rgba(0,0,0,0)',
+        showline: false,
+        linecolor: 'rgba(0,0,0,0)'
+      },
       margin: { t: 50, b: 40, l: 60, r: 20 },
       paper_bgcolor: 'rgba(0,0,0,0)',
       plot_bgcolor: 'rgba(0,0,0,0)',
@@ -501,12 +661,34 @@ const barCharts = ref([
       textposition: 'auto',
       textfont: { color: '#fff', size: 14 },
     }],
-    layout: {
-      height: 200,
-      width: 320,
+      layout: {
+        autosize: true,
       title: { text: 'CO₂', font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
-      yaxis: { title: 'Increase in Cost (%)', tickvals: [], color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
-      xaxis: { title: 'Change vs BAU (%)', color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
+      yaxis: {
+        title: 'Increase in Cost (%)',
+        tickvals: [],
+        color: '#fff',
+        tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+        titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+        showgrid: false,
+        gridcolor: 'rgba(0,0,0,0)',
+        zeroline: false,
+        zerolinecolor: 'rgba(0,0,0,0)',
+        showline: false,
+        linecolor: 'rgba(0,0,0,0)'
+      },
+      xaxis: {
+        title: 'Change vs BAU (%)',
+        color: '#fff',
+        tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+        titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+        showgrid: false,
+        gridcolor: 'rgba(0,0,0,0)',
+        zeroline: false,
+        zerolinecolor: 'rgba(0,0,0,0)',
+        showline: false,
+        linecolor: 'rgba(0,0,0,0)'
+      },
       margin: { t: 50, b: 40, l: 60, r: 20 },
       paper_bgcolor: 'rgba(0,0,0,0)',
       plot_bgcolor: 'rgba(0,0,0,0)',
@@ -526,12 +708,34 @@ const barCharts = ref([
       textposition: 'auto',
       textfont: { color: '#fff', size: 14 },
     }],
-    layout: {
-      height: 200,
-      width: 320,
+      layout: {
+        autosize: true,
       title: { text: 'AIC', font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
-      yaxis: { title: 'Increase in Cost (%)', tickvals: [], color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
-      xaxis: { title: 'Change vs BAU (%)', color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
+      yaxis: {
+        title: 'Increase in Cost (%)',
+        tickvals: [],
+        color: '#fff',
+        tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+        titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+        showgrid: false,
+        gridcolor: 'rgba(0,0,0,0)',
+        zeroline: false,
+        zerolinecolor: 'rgba(0,0,0,0)',
+        showline: false,
+        linecolor: 'rgba(0,0,0,0)'
+      },
+      xaxis: {
+        title: 'Change vs BAU (%)',
+        color: '#fff',
+        tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+        titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+        showgrid: false,
+        gridcolor: 'rgba(0,0,0,0)',
+        zeroline: false,
+        zerolinecolor: 'rgba(0,0,0,0)',
+        showline: false,
+        linecolor: 'rgba(0,0,0,0)'
+      },
       margin: { t: 50, b: 40, l: 60, r: 20 },
       paper_bgcolor: 'rgba(0,0,0,0)',
       plot_bgcolor: 'rgba(0,0,0,0)',
@@ -672,11 +876,33 @@ watch(atrPercentageData, (data) => {
         hovertemplate: hovertemplate,
       }],
       layout: {
-        height: 200,
-        width: 320,
+        autosize: true,
         title: { text: metric.label, font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
-        yaxis: { title: 'Increase in Cost (%)', tickvals: ['0%'], color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
-        xaxis: { title: 'Change vs BAU (%)', color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
+        yaxis: {
+          title: 'Increase in Cost (%)',
+          tickvals: ['0%'],
+          color: '#fff',
+          tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+          titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+          showgrid: false,
+          gridcolor: 'rgba(0,0,0,0)',
+          zeroline: false,
+          zerolinecolor: 'rgba(0,0,0,0)',
+          showline: false,
+          linecolor: 'rgba(0,0,0,0)'
+        },
+        xaxis: {
+          title: 'Change vs BAU (%)',
+          color: '#fff',
+          tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+          titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+          showgrid: false,
+          gridcolor: 'rgba(0,0,0,0)',
+          zeroline: false,
+          zerolinecolor: 'rgba(0,0,0,0)',
+          showline: false,
+          linecolor: 'rgba(0,0,0,0)'
+        },
         margin: { t: 50, b: 40, l: 60, r: 20 },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
@@ -703,11 +929,33 @@ watch(atrPercentageData, (data) => {
         hovertemplate: hovertemplate,
       }],
       layout: {
-        height: 200,
-        width: 320,
+        autosize: true,
         title: { text: metric.label, font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
-        yaxis: { title: 'Increase in Cost (%)', tickvals: y, color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
-        xaxis: { title: 'Change vs BAU (%)', color: '#fff', tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' }, titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' } },
+        yaxis: {
+          title: 'Increase in Cost (%)',
+          tickvals: y,
+          color: '#fff',
+          tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+          titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+          showgrid: false,
+          gridcolor: 'rgba(0,0,0,0)',
+          zeroline: false,
+          zerolinecolor: 'rgba(0,0,0,0)',
+          showline: false,
+          linecolor: 'rgba(0,0,0,0)'
+        },
+        xaxis: {
+          title: 'Change vs BAU (%)',
+          color: '#fff',
+          tickfont: { color: '#fff', size: 14, family: 'inherit', weight: 'bold' },
+          titlefont: { color: '#fff', size: 16, family: 'inherit', weight: 'bold' },
+          showgrid: false,
+          gridcolor: 'rgba(0,0,0,0)',
+          zeroline: false,
+          zerolinecolor: 'rgba(0,0,0,0)',
+          showline: false,
+          linecolor: 'rgba(0,0,0,0)'
+        },
         margin: { t: 50, b: 40, l: 60, r: 20 },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
@@ -755,10 +1003,11 @@ function closeDocumentation() {
   justify-content: space-between;
 }
 
-.back-arrow-btn, .doc-btn {
-  background: rgba(255,255,255,0.08);
+.back-arrow-btn,
+.doc-btn {
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
@@ -776,13 +1025,101 @@ function closeDocumentation() {
   font-size: clamp(1.5rem, 4vw, 3rem);
   font-weight: 600;
   color: #fff;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 /* Section 3: Filters */
 .climate-section-filters {
   flex: 0 0 auto;
   padding: clamp(0.75rem, 2vh, 1.5rem) 0;
+}
+
+.filters-row {
+  margin-top: 1%;
+  display: flex;
+  gap: 1.5rem;
+  width: 90%;
+  max-width: 1200px;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.filter-select {
+  flex: 1;
+  min-width: 150px;
+}
+
+/* 1. CONTAINER STYLE */
+.filter-select :deep(.v-field) {
+  background-color: #ffffff !important;
+  border-radius: 12px;
+  border: 1px solid rgba(20, 93, 160, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  min-height: 64px !important;
+  display: flex;
+  align-items: center;
+}
+
+/* 2. HOVER EFFECT */
+.filter-select :deep(.v-field:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  border-color: #145DA0;
+}
+
+/* 3. FIXING THE LABELS (Truncation & Visibility) */
+
+/* General label style */
+.filter-select :deep(.v-label.v-field-label) {
+  color: #145DA0 !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  font-size: 1.3rem !important;
+
+  /* CRITICAL: Allow label to expand fully */
+  max-width: none !important;
+  width: auto !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  text-overflow: clip !important;
+  /* Stop the "..." */
+}
+
+/* THE FLOATING TITLE (Selected State) */
+.filter-select :deep(.v-label.v-field-label--floating) {
+  color: white !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  font-size: 1.3rem !important;
+
+  /* Position adjustments */
+  transform: translateY(-34px) scale(1) !important;
+  padding: 0 8px;
+  /* More padding to cover border */
+  margin-left: -8px;
+  z-index: 100;
+  /* Ensure it sits on top of everything */
+}
+
+/* The Selected Input Value */
+.filter-select :deep(.v-field__input) {
+  color: #145DA0 !important;
+  font-weight: 600;
+  font-size: 1.25rem !important;
+}
+
+/* The dropdown arrow */
+.filter-select :deep(.v-field__append-inner .v-icon) {
+  color: #145DA0 !important;
+  opacity: 1;
+  font-size: 2rem;
+}
+
+/* Disabled State */
+.filter-select :deep(.v-field--disabled) {
+  background-color: #e0e0e0 !important;
+  border: 1px solid #999;
 }
 
 .filters-card {
@@ -792,15 +1129,23 @@ function closeDocumentation() {
   background: transparent;
 }
 
-.filter-row { row-gap: 8px; }
+.filter-row {
+  row-gap: 8px;
+}
 
 .filter-select :deep(.v-field) {
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.85);
   border-radius: 14px;
 }
 
-.filter-select :deep(.v-label) { color: #0A2342; opacity: 0.9; }
-.filter-select :deep(.v-field__input) { color: #0A2342; }
+.filter-select :deep(.v-label) {
+  color: #0A2342;
+  opacity: 0.9;
+}
+
+.filter-select :deep(.v-field__input) {
+  color: #0A2342;
+}
 
 /* Section 4: Cards */
 .climate-section-cards {
@@ -834,19 +1179,19 @@ function closeDocumentation() {
   background-color: transparent;
 }
 
-.pie-chart-wrapper { 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  padding: 1rem 1rem; 
+.pie-chart-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1rem;
 }
 
 .map-card {
   grid-column: 2;
 }
 
-.map-card-shell { 
-  padding: 0; 
+.map-card-shell {
+  padding: 0;
   border-radius: 0 1.5rem 1.5rem 0 !important;
   border-color: transparent !important;
 }
@@ -881,18 +1226,18 @@ function closeDocumentation() {
   pointer-events: none;
 }
 
-.color-bar-container.horizontal { 
-  flex-direction: row; 
-  align-items: center; 
-  gap: 10px; 
+.color-bar-container.horizontal {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
 }
 
 .color-bar-overlay {
   width: 260px;
   height: 34px;
   border-radius: 999px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .color-bar-label {
@@ -900,13 +1245,14 @@ function closeDocumentation() {
   font-size: 1rem;
   background-color: white;
   font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   border-radius: 1.5rem;
   padding: 0.2rem 0.6rem;
 }
 
-.color-bar-label-left, .color-bar-label-right { 
-  white-space: nowrap; 
+.color-bar-label-left,
+.color-bar-label-right {
+  white-space: nowrap;
 }
 
 /* Responsive adjustments */
@@ -914,11 +1260,12 @@ function closeDocumentation() {
   .climate-cards-grid {
     grid-template-columns: 1fr;
   }
-  
-  .pie-card, .map-card {
+
+  .pie-card,
+  .map-card {
     grid-column: 1;
   }
-  
+
   .scrollable-pie-card {
     height: auto;
     max-height: 50vh;
@@ -930,21 +1277,34 @@ function closeDocumentation() {
     padding-top: clamp(0.5rem, 1.5vh, 1rem);
     padding-bottom: clamp(0.25rem, 1vh, 0.5rem);
   }
-  
+
   .climate-section-title {
     padding: clamp(0.25rem, 1vh, 0.5rem) 0;
   }
-  
+
   .ltr-letters {
     font-size: clamp(1.25rem, 5vw, 2rem);
   }
-  
+
   .climate-section-filters {
     padding: clamp(0.5rem, 1.5vh, 1rem) 0;
   }
-  
+
   .filters-card {
     padding: 0.75rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .filters-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .filter-select {
+    width: 100%;
+    max-width: 400px;
   }
 }
 
@@ -952,7 +1312,7 @@ function closeDocumentation() {
   .climate-section-cards {
     padding-top: 0.5rem;
   }
-  
+
   .climate-cards-grid {
     gap: 0.75rem;
   }
@@ -962,7 +1322,7 @@ function closeDocumentation() {
 .doc-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.55);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   display: grid;
@@ -972,19 +1332,24 @@ function closeDocumentation() {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .doc-card {
   width: min(920px, 94vw);
   height: 75vh;
-  background: rgba(255,255,255,0.98);
+  background: rgba(255, 255, 255, 0.98);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.8);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -995,6 +1360,7 @@ function closeDocumentation() {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1007,19 +1373,19 @@ function closeDocumentation() {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(20,93,160,0.15);
+  border-bottom: 1px solid rgba(20, 93, 160, 0.15);
 }
 
-.doc-card-tabs { 
-  display: flex; 
+.doc-card-tabs {
+  display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
 .doc-tab {
-  background: rgba(20,93,160,0.08);
+  background: rgba(20, 93, 160, 0.08);
   color: #0A2342;
-  border: 1px solid rgba(20,93,160,0.25);
+  border: 1px solid rgba(20, 93, 160, 0.25);
   padding: 0.5rem 1rem;
   border-radius: 999px;
   font-weight: 600;
@@ -1030,32 +1396,32 @@ function closeDocumentation() {
 }
 
 .doc-tab:hover {
-  background: rgba(20,93,160,0.15);
-  border-color: rgba(20,93,160,0.4);
+  background: rgba(20, 93, 160, 0.15);
+  border-color: rgba(20, 93, 160, 0.4);
   transform: translateY(-1px);
 }
 
-.doc-tab.active { 
-  background: linear-gradient(135deg, #145DA0, #21CE99); 
-  color: #fff; 
+.doc-tab.active {
+  background: linear-gradient(135deg, #145DA0, #21CE99);
+  color: #fff;
   border-color: transparent;
-  box-shadow: 0 4px 12px rgba(20,93,160,0.3);
+  box-shadow: 0 4px 12px rgba(20, 93, 160, 0.3);
 }
 
-.doc-close-btn { 
-  background: rgba(255,255,255,0.9);
+.doc-close-btn {
+  background: rgba(255, 255, 255, 0.9);
   color: #0A2342;
-  -webkit-backdrop-filter: blur(8px); 
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   transition: all 0.2s ease;
 }
 
 .doc-close-btn:hover {
-  background: rgba(255,255,255,1);
+  background: rgba(255, 255, 255, 1);
   transform: rotate(90deg);
 }
 
-.doc-card-body { 
+.doc-card-body {
   flex: 1 1 auto;
   padding: 1.5rem 1.5rem 1.25rem;
   color: #0A2342;
@@ -1068,17 +1434,17 @@ function closeDocumentation() {
 }
 
 .doc-card-body::-webkit-scrollbar-track {
-  background: rgba(20,93,160,0.05);
+  background: rgba(20, 93, 160, 0.05);
   border-radius: 4px;
 }
 
 .doc-card-body::-webkit-scrollbar-thumb {
-  background: rgba(20,93,160,0.3);
+  background: rgba(20, 93, 160, 0.3);
   border-radius: 4px;
 }
 
 .doc-card-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(20,93,160,0.5);
+  background: rgba(20, 93, 160, 0.5);
 }
 
 .doc-card-body h3 {
@@ -1122,12 +1488,19 @@ function closeDocumentation() {
 }
 
 .doc-card-body code {
-  background: rgba(20,93,160,0.1);
+  background: rgba(20, 93, 160, 0.1);
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
   font-size: 0.9em;
   color: #145DA0;
 }
+</style>
 
+<style>
+.filter-menu-content .v-list-item-title {
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
+  padding: 8px 0 !important;
+}
 </style>

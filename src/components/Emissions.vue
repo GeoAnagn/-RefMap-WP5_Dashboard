@@ -20,77 +20,134 @@
 
 			<!-- Section 3: Filters -->
 			<div class="emissions-section emissions-section-filters">
-				<v-card class="filters-card refmap-card-inline" elevation="0">
-					<v-row class="filter-row" dense>
-						<v-col cols="12" sm="6" md="6">
-							<v-select
-								v-model="selectedMetric"
-								:items="metricOptions"
-								label="Metric"
-								class="filter-select"
-								variant="outlined"
-								density="comfortable"
-								hide-details="auto"
-							/>
-						</v-col>
-						<v-col cols="12" sm="6" md="6">
-							<v-select
-								v-model="selectedCase"
-								:items="caseOptions"
-								label="Case"
-								class="filter-select"
-								:disabled="!selectedMetric"
-								item-title="title"
-								item-value="value"
-								variant="outlined"
-								density="comfortable"
-								hide-details="auto"
-							/>
-						</v-col>
-					</v-row>
-				</v-card>
+        <v-card class="filters-card refmap-card-inline" elevation="0">
+          <v-row class="filter-row" dense justify="center" align="center">
+            <v-col cols="12" sm="4" md="4">
+              <v-select
+                v-model="selectedReduction"
+                :items="reductionDisplayOptions"
+                label="NOx Reduction"
+                class="filter-select"
+                variant="outlined"
+                density="comfortable"
+                hide-details="auto"
+              />
+            </v-col>
+            <v-col cols="12" sm="4" md="4">
+              <v-select
+                v-model="selectedMetric"
+                :items="metricOptions"
+                label="Metric"
+                class="filter-select"
+                :disabled="!selectedReduction"
+                variant="outlined"
+                density="comfortable"
+                hide-details="auto"
+              />
+            </v-col>
+            <v-col cols="12" sm="4" md="4" class="toggle-col">
+              <v-btn-toggle
+                v-model="showDifference"
+                class="diff-toggle"
+                :disabled="!selectedMetric || !selectedReduction"
+                color="primary"
+                density="comfortable"
+                mandatory
+                rounded
+              >
+                <v-btn :value="false" variant="outlined">Case</v-btn>
+                <v-btn :value="true" variant="outlined">Difference</v-btn>
+              </v-btn-toggle>
+            </v-col>
+          </v-row>
+        </v-card>
 			</div>
 
-			<!-- Section 4: Cards -->
-			<div class="emissions-section emissions-section-cards">
-				<div class="emissions-cards-grid">
-					<v-card elevation="6" class="refmap-card refmap-card-inline map-card-shell">
-						<div class="map-card-body">
-							<template v-if="showMap">
-								<LMap
-									ref="mapRefEl"
-									:zoom="5"
-									:center="mapCenter"
-									:bounds="overlayBounds"
-									:minZoom="minZoom"
-									:maxZoom="maxZoom"
-									:maxBounds="europeBounds"
-									:use-global-leaflet="false"
-									class="map-leaflet"
-								>
-									<LTileLayer
-										url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-										attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
-									/>
-									<LImageOverlay
-										v-if="overlayUrl && overlayBounds"
-										:url="overlayUrl"
-										:bounds="overlayBounds"
-										:opacity="1"
-									/>
-								</LMap>
-							</template>
-							<!-- Color bar -->
-							<div v-if="overlayUrl" class="color-bar-units">ppbv</div>
-							<div v-if="overlayUrl" class="color-bar-container horizontal">
-								<div class="color-bar-label color-bar-label-left">{{ colorBarLeft }}</div>
-								<div class="color-bar-overlay" :style="colorBarStyle"></div>
-								<div class="color-bar-label color-bar-label-right">{{ colorBarRight }}</div>
-							</div>
-						</div>
-					</v-card>
-				</div>
-			</div>
+      <!-- Section 4: Cards -->
+      <div class="emissions-section emissions-section-cards">
+        <div class="emissions-cards-grid two-column">
+          <v-card elevation="6" class="refmap-card refmap-card-inline map-card-shell">
+            <div class="map-card-body">
+              <div class="map-card-title">Base</div>
+              <template v-if="showMap">
+                <LMap
+                  ref="mapBaseRef"
+                  :zoom="5"
+                  :center="mapCenter"
+                  :bounds="europeBounds"
+                  :minZoom="minZoom"
+                  :maxZoom="maxZoom"
+                  :maxBounds="europeBounds"
+                  :use-global-leaflet="false"
+                  @moveend="syncFromBase"
+                  @zoomend="syncFromBase"
+                  class="map-leaflet"
+                >
+                  <LTileLayer
+                    url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                      attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>"
+                      :z-index="200"
+                  />
+                    <LImageOverlay
+                      v-if="overlayBase.url?.value && overlayBase.bounds?.value"
+                      :url="overlayBase.url?.value || ''"
+                      :bounds="europeBounds"
+                      :z-index="500"
+                      :opacity="1"
+                    />
+                </LMap>
+              </template>
+                <div v-if="colorbarBase.visible && colorbarBase.units" class="color-bar-units">{{ colorbarBase.units }}</div>
+                <div v-if="colorbarBase.visible" class="color-bar-container horizontal">
+                  <div v-if="colorbarBase.labelLeft" class="color-bar-label color-bar-label-left">{{ colorbarBase.labelLeft }}</div>
+                  <div class="color-bar-overlay" :style="colorbarBase.style"></div>
+                  <div v-if="colorbarBase.labelRight" class="color-bar-label color-bar-label-right">{{ colorbarBase.labelRight }}</div>
+                </div>
+            </div>
+          </v-card>
+
+          <v-card elevation="6" class="refmap-card refmap-card-inline map-card-shell">
+            <div class="map-card-body">
+              <div class="map-card-title">{{ rightTitle }}</div>
+              <template v-if="showMap">
+                <LMap
+                  ref="mapCaseRef"
+                  :zoom="5"
+                  :center="mapCenter"
+                  :bounds="europeBounds"
+                  :minZoom="minZoom"
+                  :maxZoom="maxZoom"
+                  :maxBounds="europeBounds"
+                  :use-global-leaflet="false"
+                  @moveend="syncFromCase"
+                  @zoomend="syncFromCase"
+                  class="map-leaflet"
+                >
+                  <LTileLayer
+                    url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                      attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>"
+                      :z-index="200"
+                  />
+                    <LImageOverlay
+                      v-if="overlayCase.url?.value && overlayCase.bounds?.value"
+                      :url="overlayCase.url?.value || ''"
+                      :bounds="europeBounds"
+                      :z-index="500"
+                      :opacity="1"
+                    />
+                </LMap>
+              </template>
+                <div v-if="!overlayCase.url?.value && selectedMetric && selectedReduction" class="map-empty-text">No data available for this view.</div>
+                <div v-if="colorbarCase.visible && colorbarCase.units" class="color-bar-units">{{ colorbarCase.units }}</div>
+                <div v-if="colorbarCase.visible" class="color-bar-container horizontal">
+                  <div v-if="colorbarCase.labelLeft" class="color-bar-label color-bar-label-left">{{ colorbarCase.labelLeft }}</div>
+                  <div class="color-bar-overlay" :style="colorbarCase.style"></div>
+                  <div v-if="colorbarCase.labelRight" class="color-bar-label color-bar-label-right">{{ colorbarCase.labelRight }}</div>
+                </div>
+            </div>
+          </v-card>
+        </div>
+      </div>
 		</div>
 	</div>
 	<DocumentationOverlay :show="showDocOverlay" toolId="l2" @close="closeDocumentation" />
@@ -104,94 +161,263 @@ import { LMap, LTileLayer, LImageOverlay } from '@vue-leaflet/vue-leaflet'
 import DocumentationOverlay from './DocumentationOverlay.vue'
 
 // Filters
+const reductionOptions = ref([])
 const metricOptions = ref([])
-const caseOptions = ref([])
+const selectedReduction = ref('')
 const selectedMetric = ref('')
-const selectedCase = ref('')
+const showDifference = ref(false)
+const reductionDisplayOptions = computed(() => reductionOptions.value.map((r) => ({ title: `${r}%`, value: r })))
 
 // Map state
 const mapCenter = ref([52.0, 4.37])
-const minZoom = ref(4)
+const minZoom = ref(5)
 const maxZoom = ref(18)
-const europeBounds = ref([[30.0, -15.0], [80.0, 50.0]])
-const overlayBounds = ref(null)
+const europeBounds = ref([[[28.0, -15.5], [70.5, 50.0]]]) // (lat_min, lon_min) to (lat_max, lon_max) from backend extent
+const overlayLatOffsetDeg = 0
+const overlayLonOffsetDeg = 0
+const isSyncing = ref(false)
+
+function offsetBounds(bounds, latOffsetDeg = 0, lonOffsetDeg = 0) {
+  if (!Array.isArray(bounds) || bounds.length !== 2) return bounds
+  const [[south, west], [north, east]] = bounds
+  return [
+    [south + latOffsetDeg, west + lonOffsetDeg],
+    [north + latOffsetDeg, east + lonOffsetDeg],
+  ]
+}
+
+function deriveBoundsFromApi(boundsObj) {
+  if (!boundsObj || typeof boundsObj !== 'object') {
+    return offsetBounds(europeBounds.value, overlayLatOffsetDeg, overlayLonOffsetDeg)
+  }
+  const south = Number(boundsObj['lat-min'])
+  const west = Number(boundsObj['lon-min'])
+  const north = Number(boundsObj['lat-max'])
+  const east = Number(boundsObj['lon-max'])
+  const numbers = [south, west, north, east]
+  if (numbers.some((v) => Number.isNaN(v))) {
+    return offsetBounds(europeBounds.value, overlayLatOffsetDeg, overlayLonOffsetDeg)
+  }
+  return offsetBounds([[south, west], [north, east]], overlayLatOffsetDeg, overlayLonOffsetDeg)
+}
+
+function createOverlayState() {
+  return {
+    url: ref(''),
+    bounds: ref(offsetBounds(europeBounds.value, overlayLatOffsetDeg, overlayLonOffsetDeg)),
+    colorbarMin: ref(null),
+    colorbarMax: ref(null),
+    colorbarUnits: ref(''),
+    colorbarType: ref('diverging'),
+  }
+}
+
+const overlayBase = createOverlayState()
+const overlayCase = createOverlayState()
+
 const showMap = ref(true)
-const mapRefEl = ref(null)
-const overlayUrl = ref('')
+const mapBaseRef = ref(null)
+const mapCaseRef = ref(null)
 
-// Color bar: always diverging blue→transparent→red, fixed min/max from backend
-const colorbarMin = ref(-0.5)
-const colorbarMax = ref(0.5)
-const colorBarLeft = computed(() => `${colorbarMin.value}`)
-const colorBarRight = computed(() => `${colorbarMax.value}`)
-const colorBarStyle = computed(() => ({
-	background: 'linear-gradient(to right, rgba(0,0,255,1), rgba(128,128,128,0), rgba(255,0,0,1))'
-}))
+function colorbarComputed(state) {
+  const visible = computed(() => Boolean(state.url.value) && Boolean(state.colorbarType.value))
+  const labelLeft = computed(() => (typeof state.colorbarMin.value === 'number' ? `${state.colorbarMin.value}` : ''))
+  const labelRight = computed(() => (typeof state.colorbarMax.value === 'number' ? `${state.colorbarMax.value}` : ''))
+  const units = computed(() => state.colorbarUnits.value || '')
+  const style = computed(() => {
+    if (state.colorbarType.value === 'sequential') {
+      return {
+        background: 'linear-gradient(to right, #1b4dd8 0%, #5fa3ff 25%, #ffffff 50%, #ff9b9b 75%, #c50000 100%)'
+      }
+    }
+    return {
+      background: 'linear-gradient(to right, #1b4dd8 0%, #5fa3ff 25%, #ffffff 50%, #ff9b9b 75%, #c50000 100%)',
+      backgroundSize: '100% 100%'
+    }
+  })
 
-// Load metrics on mount
+  // Expose plain getters so templates don't need `.value` and the style binding stays reactive
+  return {
+    get visible() { return visible.value },
+    get labelLeft() { return labelLeft.value },
+    get labelRight() { return labelRight.value },
+    get units() { return units.value },
+    get style() { return style.value },
+  }
+}
+
+const colorbarBase = colorbarComputed(overlayBase)
+const colorbarCase = colorbarComputed(overlayCase)
+
+const currentRightCase = computed(() => (showDifference.value ? 'difference' : 'increase'))
+const rightTitle = computed(() => (showDifference.value ? 'Difference' : 'Case'))
+
+function resetOverlay(state) {
+  state.url.value = ''
+  state.bounds.value = offsetBounds(europeBounds.value, overlayLatOffsetDeg, overlayLonOffsetDeg)
+  state.colorbarMin.value = null
+  state.colorbarMax.value = null
+  state.colorbarUnits.value = ''
+  state.colorbarType.value = 'diverging'
+}
+
+function syncMaps(srcRef, dstRef) {
+  if (isSyncing.value) return
+  const src = srcRef?.value && srcRef.value.leafletObject
+  const dst = dstRef?.value && dstRef.value.leafletObject
+  if (!src || !dst) return
+  const center = src.getCenter()
+  const zoom = src.getZoom()
+  isSyncing.value = true
+  dst.setView(center, zoom, { animate: false })
+  isSyncing.value = false
+}
+
+function syncFromBase() {
+  syncMaps(mapBaseRef, mapCaseRef)
+}
+
+function syncFromCase() {
+  syncMaps(mapCaseRef, mapBaseRef)
+}
+
+// no-op helper removed (case selection handled via toggle)
+
+async function loadOverlay(metric, kase, state, mapRef, reduction) {
+  resetOverlay(state)
+  if (!metric || !kase || !reduction) return
+  try {
+    const params = new URLSearchParams({ metric, case: kase, reduction, b64: '1' })
+    const resp = await fetch(`/api/emissions/api/emissions_image?${params.toString()}`)
+    if (!resp.ok) throw new Error('Failed to fetch overlay metadata')
+    const data = await resp.json()
+
+    const urlFromApi = data.image_url ? new URL(data.image_url, window.location.origin).toString() : ''
+    const urlFromBase64 = data.image_data ? `data:image/png;base64,${data.image_data}` : ''
+    // Prefer base64 when present to avoid any proxy/path issues; otherwise use URL
+    state.url.value = urlFromBase64 || urlFromApi
+
+    if (!state.url.value) {
+      console.warn('No overlay URL/data received', { metric, kase, reduction, resp: data })
+    }
+
+    state.bounds.value = deriveBoundsFromApi(data.bounds)
+    if (data.colorbar) {
+      if (typeof data.colorbar.min === 'number') state.colorbarMin.value = data.colorbar.min
+      if (typeof data.colorbar.max === 'number') state.colorbarMax.value = data.colorbar.max
+      if (typeof data.colorbar.units === 'string') state.colorbarUnits.value = data.colorbar.units
+      if (typeof data.colorbar.type === 'string') state.colorbarType.value = data.colorbar.type
+    }
+    // Always force diverging with fixed range when backend omits fields
+    if (!state.colorbarType.value) state.colorbarType.value = 'diverging'
+    if (state.colorbarMin.value === null) state.colorbarMin.value = -0.5
+    if (state.colorbarMax.value === null) state.colorbarMax.value = 0.5
+    if (!state.colorbarUnits.value && metric && metric.toLowerCase().includes('no')) {
+      // Backend sometimes omits units for NO* metrics; default to ppbv so the label is visible
+      state.colorbarUnits.value = 'ppbv'
+    }
+    
+    // Zoom to overlay bounds after loading
+    await zoomToOverlayBounds(mapRef, state.bounds.value)
+  } catch (err) {
+    resetOverlay(state)
+  }
+}
+
+async function zoomToOverlayBounds(mapRef, bounds) {
+  if (!bounds || !Array.isArray(bounds) || bounds.length !== 2) return
+  
+  await nextTick()
+  
+  const map = mapRef?.value?.leafletObject
+  if (!map) return
+  
+  try {
+    // Import Leaflet dynamically if needed
+    const L = await import('leaflet')
+    
+    // Create Leaflet bounds object
+    const leafletBounds = L.default.latLngBounds(bounds)
+    
+    // Calculate appropriate zoom level
+    const mapContainer = map.getContainer()
+    const mapSize = { x: mapContainer.offsetWidth, y: mapContainer.offsetHeight }
+    const boundsSize = map.project(leafletBounds.getNorthEast(), 18)
+      .subtract(map.project(leafletBounds.getSouthWest(), 18))
+    
+    const zoom = Math.min(
+      maxZoom.value, // Maximum zoom
+      Math.max(
+        minZoom.value, // Minimum zoom
+        Math.floor(Math.log2(Math.min(mapSize.x / boundsSize.x, mapSize.y / boundsSize.y)))
+      )
+    )
+    
+    // Fly to bounds with calculated zoom
+    map.flyToBounds(leafletBounds, {
+      padding: [40, 40],
+      animate: true,
+      duration: 1.2,
+      easeLinearity: 0.25
+    })
+    
+    // Force zoom adjustment after animation for better visibility
+    setTimeout(() => {
+      if (map) {
+        const targetZoom = Math.min(zoom + 1, Math.min(10, maxZoom.value))
+        map.setZoom(targetZoom)
+      }
+    }, 1300)
+  } catch (error) {
+    console.error('Error zooming to bounds:', error)
+  }
+}
+
+// Load reductions on mount
 onMounted(async () => {
-	try {
-		const resp = await fetch('/api/emissions/api/emissions_metrics')
-		const metrics = await resp.json()
-		// display titles
-		metricOptions.value = metrics
-	} catch (e) {
-		metricOptions.value = []
-	}
+  try {
+    const resp = await fetch('/api/emissions/api/emissions_reductions')
+    const reductions = await resp.json()
+    reductionOptions.value = reductions
+  } catch (e) {
+    reductionOptions.value = []
+  }
 })
 
-// Load cases when metric changes
-watch(selectedMetric, async (metric) => {
-	selectedCase.value = ''
-	caseOptions.value = []
-	overlayUrl.value = ''
-	overlayBounds.value = null
-	if (!metric) return
-	try {
-		const resp = await fetch(`/api/emissions/api/emissions_cases?metric=${encodeURIComponent(metric)}`)
-		const cases = await resp.json()
-		// Provide title mapping
-		const titleMap = {
-			'base': 'Base',
-			'10perc_reduction': '10% Reduction'
-		}
-		caseOptions.value = (cases || []).map(c => ({ title: titleMap[c] ?? c, value: c }))
-	} catch (e) {
-		caseOptions.value = []
-	}
+// When reduction changes, load metrics and reset selections
+watch(selectedReduction, async (reduction) => {
+  selectedMetric.value = ''
+  resetOverlay(overlayBase)
+  resetOverlay(overlayCase)
+  metricOptions.value = []
+  if (!reduction) return
+  try {
+    const resp = await fetch(`/api/emissions/api/emissions_metrics?reduction=${encodeURIComponent(reduction)}`)
+    const metrics = await resp.json()
+    metricOptions.value = metrics || []
+  } catch (e) {
+    metricOptions.value = []
+  }
 })
 
-// Load image when both selected
-watch([selectedMetric, selectedCase], async ([metric, kase]) => {
-	overlayUrl.value = ''
-	overlayBounds.value = null
-	if (!metric || !kase) return
-	try {
-		const params = new URLSearchParams({ metric, case: kase })
-		const resp = await fetch(`/api/emissions/api/emissions_image?${params.toString()}`)
-		const data = await resp.json()
-		if (data.image_data) {
-			overlayUrl.value = `data:image/png;base64,${data.image_data}`
-		}
-		if (data.bounds) {
-			overlayBounds.value = [
-				[data.bounds['lat-min'], data.bounds['lon-min']],
-				[data.bounds['lat-max'], data.bounds['lon-max']],
-			]
-			await nextTick()
-			const map = mapRefEl.value && mapRefEl.value.leafletObject
-			if (map && overlayBounds.value) {
-				try { map.fitBounds(overlayBounds.value, { padding: [20, 20], animate: true }) } catch {}
-			}
-		}
-			if (data.colorbar) {
-				if (typeof data.colorbar.min === 'number') colorbarMin.value = data.colorbar.min
-				if (typeof data.colorbar.max === 'number') colorbarMax.value = data.colorbar.max
-			}
-	} catch (e) {
-		overlayUrl.value = ''
-		overlayBounds.value = null
-	}
+// When metric changes, load base and right overlays
+watch([selectedReduction, selectedMetric], async ([reduction, metric]) => {
+  resetOverlay(overlayBase)
+  resetOverlay(overlayCase)
+  if (!reduction || !metric) return
+  await loadOverlay(metric, 'base', overlayBase, mapBaseRef, reduction)
+  await loadOverlay(metric, currentRightCase.value, overlayCase, mapCaseRef, reduction)
+  
+  // Sync both maps after loading overlays
+  await nextTick()
+  syncFromBase()
+})
+
+// When toggle changes, refresh right overlay
+watch(currentRightCase, async (kase) => {
+  if (!selectedReduction.value || !selectedMetric.value) return
+  resetOverlay(overlayCase)
+  await loadOverlay(selectedMetric.value, kase, overlayCase, mapCaseRef, selectedReduction.value)
 })
 
 // Docs overlay
@@ -258,25 +484,123 @@ function closeDocumentation() {
 /* Section 3: Filters */
 .emissions-section-filters {
   flex: 0 0 auto;
-  padding: clamp(0.75rem, 2vh, 1.5rem) 0;
+  padding: 1.5rem 0;
 }
 
 .filters-card {
   width: 100%;
-  max-width: 25%;
+  max-width: 1200px;
   padding: 1rem;
   background: transparent;
 }
 
-.filter-row { row-gap: 8px; }
-
-.filter-select :deep(.v-field) {
-  background: rgba(255,255,255,0.85);
-  border-radius: 14px;
+.filter-row {
+  margin-top: 1%;
+  width: 100%;
+  max-width: 1200px;
+  /* row-gap: 12px; */
+  column-gap: 1.5rem;
+  justify-content: center;
 }
 
-.filter-select :deep(.v-label) { color: #0A2342; opacity: 0.9; }
-.filter-select :deep(.v-field__input) { color: #0A2342; }
+/* Polished field styling aligned with OptimizedTrajectories */
+.filter-select :deep(.v-field) {
+  background-color: #ffffff !important;
+  border-radius: 12px;
+  border: 1px solid rgba(20, 93, 160, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  min-height: 64px !important;
+  display: flex;
+  align-items: center;
+}
+
+.filter-select :deep(.v-field:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  border-color: #145DA0;
+}
+
+.filter-select :deep(.v-label.v-field-label) {
+  color: #145DA0 !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  font-size: 1.1rem !important;
+  max-width: none !important;
+  width: auto !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  text-overflow: clip !important;
+}
+
+.filter-select :deep(.v-label.v-field-label--floating) {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  font-size: 1.1rem !important;
+  transform: translateY(-30px) scale(1) !important;
+  padding: 0 8px;
+  margin-left: -8px;
+  z-index: 100;
+}
+
+.filter-select :deep(.v-field__input) {
+  color: #145DA0 !important;
+  font-weight: 600;
+  font-size: 1.05rem !important;
+}
+
+.filter-select :deep(.v-field__append-inner .v-icon) {
+  color: #145DA0 !important;
+  opacity: 1;
+  font-size: 1.6rem;
+}
+
+.filter-select :deep(.v-field--disabled) {
+  background-color: #e0e0e0 !important;
+  border: 1px solid #999;
+}
+
+.toggle-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diff-toggle :deep(.v-btn) {
+  text-transform: none;
+  font-weight: 600;
+}
+
+.diff-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 3%;
+  margin-left: 10%;
+  column-gap: 6%;
+  border-radius: 14px;
+  border: 1px solid rgba(20, 93, 160, 0.18);
+}
+
+.diff-toggle :deep(.v-btn) {
+  min-width: 120px;
+  font-size: 1.4rem;
+  border-radius: 10px;
+  color: #145DA0 !important;
+  background-color: white;
+}
+
+.diff-toggle :deep(.v-btn.v-btn--active) {
+  background: linear-gradient(135deg, #145DA0, #21CE99);
+  color: #fff !important;
+  border-color: transparent;
+  box-shadow: 0 6px 16px rgba(20, 93, 160, 0.25);
+}
+
+.diff-toggle :deep(.v-btn.v-btn--disabled) {
+  opacity: 0.6;
+}
 
 /* Section 4: Cards */
 .emissions-section-cards {
@@ -286,15 +610,20 @@ function closeDocumentation() {
 }
 
 .emissions-cards-grid {
-  display: flex;
-  width: 90%;
-  max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  padding: 0 1rem;
 }
 
 .map-card-shell { 
   padding: 0;
-  width: 100%;
   border-radius: 1.5rem;
+}
+
+.emissions-cards-grid.two-column .map-card-shell {
+  min-width: 320px;
 }
 
 .map-card-body { 
@@ -302,6 +631,33 @@ function closeDocumentation() {
   width: 100%; 
   height: 100%; 
   min-height: 70vh; 
+}
+
+.map-card-title {
+  position: absolute;
+  z-index: 2100;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.92);
+  color: #0A2342;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 1.5rem;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.14);
+  backdrop-filter: blur(6px);
+}
+
+.map-empty-text {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #0A2342;
+  font-weight: 600;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(4px);
 }
 
 .map-leaflet { 
@@ -326,9 +682,19 @@ function closeDocumentation() {
 	border-radius: 999px;
 	z-index: 2000;
 	pointer-events: none;
+  font-size: 1.4rem;
 }
 .color-bar-container { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); min-width: 240px; max-width: 70%; display: flex; flex-direction: row; align-items: center; gap: 10px; z-index: 2000; pointer-events: none; }
-.color-bar-overlay { width: 260px; height: 34px; border-radius: 999px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.6); }
+.color-bar-overlay { 
+  width: 260px; 
+  height: 34px; 
+  border-radius: 999px; 
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  border: 1px solid rgba(0,0,0,0.2);
+  background-color: #ffffff;
+  opacity: 1;
+  mix-blend-mode: normal;
+}
 .color-bar-label { 
   color: black; 
   font-size: 1rem; 
@@ -337,6 +703,7 @@ function closeDocumentation() {
   text-shadow: 0 1px 2px rgba(0,0,0,0.4); 
   padding: 2px 8px; 
   border-radius: 999px; 
+  font-size: 1.25rem;
 }
 
 .color-bar-label-left, .color-bar-label-right { 
@@ -374,7 +741,12 @@ function closeDocumentation() {
   }
   
   .emissions-cards-grid {
-    width: 95%;
+    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .emissions-cards-grid.two-column {
+    gap: 1rem;
   }
 }
 

@@ -32,6 +32,11 @@ export default defineConfig({
         target: 'http://147.102.37.172:4005',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/emissions/, '')
+      },
+      '/api/atmospheric_pollution': {
+        target: 'http://147.102.37.172:4006',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/atmospheric_pollution/, '')
       }
     }
   }

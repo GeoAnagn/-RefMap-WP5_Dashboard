@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from scipy.interpolate import griddata
 
 # --- Configuration ---
-DATA_DIR = "./"
+DATA_DIR = "./data/"
 OUTPUT_DIR = "heatmaps_overlay_cloud_effect"
 
 # Define the fixed ranges for specific scenarios (used only when data is constant zero)
