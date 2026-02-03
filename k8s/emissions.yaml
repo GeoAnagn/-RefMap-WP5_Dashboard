@@ -24,7 +24,7 @@ spec:
       volumes:
       - name: data-volume
         hostPath:
-          path: /home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/emissions/data
+          path: /refmap_dashboard/backend/emissions/data
           type: Directory
 ---
 apiVersion: v1

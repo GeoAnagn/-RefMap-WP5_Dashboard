@@ -200,15 +200,38 @@ docker push yourdockerhub/refmap_atmospheric_pollution:latest
 
 
 #### d. Deploy with Kubernetes
-Kubernetes deployment and service YAML files are already provided for each backend service (see the `k8s/` or relevant directory).
 
-> **Important:** Before deploying, you must edit the `k8s/*.yaml` files to set the correct `hostPath` for your system. Each file mounts a local data directory (e.g., `/home/{user}/...`). Update these paths to point to the corresponding `backend/<service_name>/data` directory on your machine.
+1. **Start Minikube with required mount:**
+   This mounts your current project directory into the specific path the pods are configured to use.
+   ```sh
+   minikube start --mount --mount-string="$(pwd):/refmap_dashboard"
+   ```
 
-Apply all manifests:
-```sh
-kubectl apply -f k8s/
-# or apply individual files as needed
-```
+2. **Load Docker Images:** 
+   If you are using Minikube locally, you must load your locally built images into the Minikube environment.
+   ```sh
+   minikube image load refmap/atmospheric_pollution:latest
+   minikube image load refmap/climate_impact:latest
+   minikube image load refmap/emissions:latest
+   minikube image load refmap/noise_assessment:latest
+   minikube image load refmap/optimized_trajectories:latest
+   minikube image load refmap/wind_assessment:latest
+   ```
+
+3. **Deploy Services:**
+   ```sh
+   kubectl apply -f k8s/
+   ```
+
+4. **Port Forwarding (Required for Local Development):** 
+   Since the frontend runs locally and the backend runs inside Minikube, you must forward the ports to make them accessible.
+   
+   A helper script is provided for this:
+   ```sh
+   ./port-forward.sh
+   ```
+   
+   Ensure this script is running in the background while you use the application.
 
 ##### Example: Service YAML and Port Matching
 Make sure the `targetPort` in your Service YAML matches the port your backend service listens on, and that this matches the port expected by your frontend (see your Vite proxy config and the port used in `npm run dev`).

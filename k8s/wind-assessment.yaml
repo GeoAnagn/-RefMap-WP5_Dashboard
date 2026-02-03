@@ -24,7 +24,7 @@ spec:
       volumes:
       - name: data-volume
         hostPath:
-          path: /home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/wind_assessment/data
+          path: /refmap_dashboard/backend/wind_assessment/data
           type: Directory
 ---
 apiVersion: v1

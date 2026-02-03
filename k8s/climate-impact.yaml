@@ -24,7 +24,7 @@ spec:
       volumes:
       - name: data-volume
         hostPath:
-          path: /home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/climate_impact/data
+          path: /refmap_dashboard/backend/climate_impact/data
           type: Directory
 ---
 apiVersion: v1

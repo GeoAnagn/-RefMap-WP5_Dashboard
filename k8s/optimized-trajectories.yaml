@@ -24,7 +24,7 @@ spec:
       volumes:
       - name: data-volume
         hostPath:
-          path: /home/george/Documents/Microlab/RefMap/-RefMap-WP5_Dashboard/backend/optimized_trajectories/data
+          path: /refmap_dashboard/backend/optimized_trajectories/data
           type: Directory
 ---
 apiVersion: v1
