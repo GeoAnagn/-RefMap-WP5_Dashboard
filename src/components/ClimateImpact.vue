@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-bg">
     <div class="climate-impact-container">
-      <!-- Section 1: Header -->
+
       <div class="climate-section climate-section-header">
         <v-btn icon class="back-arrow-btn" @click="$emit('close')">
           <v-icon>mdi-arrow-left</v-icon>
@@ -11,97 +11,45 @@
         </v-btn>
       </div>
 
-      <!-- Section 2: Title -->
-            <div class="climate-section-title">
+
+      <div class="climate-section-title">
         <span class="ltr-letters-wrapper ltr-letters-animate">
           <span class="ltr-letters">Climate Impact</span>
         </span>
       </div>
 
-      <!-- Section 3: Filters -->
+
       <div class="climate-section climate-section-filters">
         <div class="filters-row">
-          <v-select
-            v-model="selectedDateDisplay"
-            :items="dateOptionsDisplay"
-            label="Date"
-            class="filter-select"
-            variant="outlined"
-            density="comfortable"
-            hide-details
-            :menu-props="{ contentClass: 'filter-menu-content' }"
-          />
-          <v-select
-            v-model="selectedDataTypeDisplay"
-            :items="dataTypeOptionsDisplay"
-            label="Data Type"
-            class="filter-select"
-            :disabled="!selectedDate"
-            variant="outlined"
-            density="comfortable"
-            hide-details
-            :menu-props="{ contentClass: 'filter-menu-content' }"
-          />
-          <v-select
-            v-model="selectedScaleOrdered"
-            :items="scaleOptionsOrdered"
-            label="Scale"
-            class="filter-select"
-            :disabled="!selectedDataType"
-            variant="outlined"
-            density="comfortable"
-            hide-details
-            :menu-props="{ contentClass: 'filter-menu-content' }"
-          />
-          <v-select
-            v-model="selectedCostDisplay"
-            :items="costOptionsDisplay"
-            label="Cost"
-            class="filter-select"
-            :disabled="!selectedScale"
-            variant="outlined"
-            density="comfortable"
-            hide-details
-            :menu-props="{ contentClass: 'filter-menu-content' }"
-          />
-          <v-select
-            v-model="selectedFlightLevel"
-            :items="flightLevelOptions"
-            label="Flight Level"
-            class="filter-select"
-            :disabled="!selectedCost"
-            variant="outlined"
-            density="comfortable"
-            hide-details
-            :menu-props="{ contentClass: 'filter-menu-content' }"
-          />
-          <v-select
-            v-model="selectedTimeDisplay"
-            :items="timeOptionsDisplay"
-            label="Time"
-            class="filter-select"
-            :disabled="!selectedFlightLevel"
-            variant="outlined"
-            density="comfortable"
-            hide-details
-            :menu-props="{ contentClass: 'filter-menu-content' }"
-          />
+          <v-select v-model="selectedDateDisplay" :items="dateOptionsDisplay" label="Date" class="filter-select"
+            variant="outlined" density="comfortable" hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }" />
+          <v-select v-model="selectedDataTypeDisplay" :items="dataTypeOptionsDisplay" label="Data Type"
+            class="filter-select" :disabled="!selectedDate" variant="outlined" density="comfortable" hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }" />
+          <v-select v-model="selectedScaleOrdered" :items="scaleOptionsOrdered" label="Scale" class="filter-select"
+            :disabled="!selectedDataType" variant="outlined" density="comfortable" hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }" />
+          <v-select v-model="selectedCostDisplay" :items="costOptionsDisplay" label="Cost" class="filter-select"
+            :disabled="!selectedScale" variant="outlined" density="comfortable" hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }" />
+          <v-select v-model="selectedFlightLevel" :items="flightLevelOptions" label="Flight Level" class="filter-select"
+            :disabled="!selectedCost" variant="outlined" density="comfortable" hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }" />
+          <v-select v-model="selectedTimeDisplay" :items="timeOptionsDisplay" label="Time" class="filter-select"
+            :disabled="!selectedFlightLevel" variant="outlined" density="comfortable" hide-details
+            :menu-props="{ contentClass: 'filter-menu-content' }" />
         </div>
       </div>
 
-      <!-- Section 4: Cards -->
+
       <div class="climate-section climate-section-cards">
         <div class="climate-cards-grid">
           <div class="climate-card-wrapper pie-card">
             <v-card elevation="6" class="refmap-card refmap-card-inline scrollable-pie-card">
               <div v-for="(bar, idx) in barCharts" :key="idx" class="pie-chart-wrapper">
-                <VuePlotly
-                  :data="bar.data"
-                  :layout="bar.layout"
-                  :config="{ displayModeBar: false, responsive: true }"
-                  :useResizeHandler="true"
-                  style="width:100%;height:240px;"
-                />
+                <VuePlotly :data="bar.data" :layout="bar.layout" :config="{ displayModeBar: false, responsive: true }"
+                  :useResizeHandler="true" style="width:100%;height:240px;" />
                 <hr v-if="idx < barCharts.length - 1"
                   style="border:0;border-top:2px solid #eee;margin:1.2rem auto;opacity:0.7;" />
               </div>
@@ -114,7 +62,7 @@
                   <LMap :zoom="5" :center="mapCenter" :minZoom="minZoom" :maxZoom="maxZoom" :maxBounds="europeBounds"
                     :use-global-leaflet="false" class="map-leaflet">
                     <LTileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                    attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>" />
+                      attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>" />
                     <LImageOverlay v-if="heatmapImageUrl && heatmapBounds" :url="heatmapImageUrl"
                       :bounds="heatmapBounds" :opacity="0.7" />
                   </LMap>
@@ -144,7 +92,7 @@ import 'leaflet/dist/leaflet.css';
 import { LMap, LTileLayer, LImageOverlay } from '@vue-leaflet/vue-leaflet';
 import DocumentationOverlay from './DocumentationOverlay.vue';
 
-// --- Dynamic filter options ---
+
 const dateOptionsRaw = ref([])
 const dateOptions = ref([])
 const dataTypeOptions = ref([])
@@ -160,10 +108,10 @@ const heatmapImageUrl = ref('')
 const heatmapBounds = ref(null)
 
 const europeBounds = [
-  [34.5, -11.25], // Southwest (lat, lng)
-  [71.0, 31.5]    // Northeast (lat, lng)
+  [34.5, -11.25],
+  [71.0, 31.5]
 ];
-const mapCenter = [52, 10]; // Central Europe
+const mapCenter = [52, 10];
 const minZoom = 4;
 const maxZoom = 7;
 
@@ -177,14 +125,14 @@ onMounted(async () => {
     const res = await fetch('/api/climate_impact/api/get-dates')
     const data = await res.json()
     dateOptionsRaw.value = data.dates || []
-    dateOptions.value = dateOptionsRaw.value.slice() // No formatting, keep as is
+    dateOptions.value = dateOptionsRaw.value.slice()
     selectedDate.value = ''
   } catch (e) {
     console.error('Failed to fetch dates', e)
   }
 })
 
-// Watch for date change and fetch data types for that date
+
 watch(selectedDate, async (newDate) => {
   if (!newDate) {
     dataTypeOptions.value = []
@@ -210,7 +158,7 @@ watch(selectedDate, async (newDate) => {
   }
 })
 
-// Watch for dataType change and update scale options
+
 watch(selectedDataType, async (newType) => {
   if (!selectedDate.value || !newType) {
     scaleOptions.value = []
@@ -232,7 +180,7 @@ watch(selectedDataType, async (newType) => {
   }
 })
 
-// Watch for scale change and update cost options and fetch ATR percentage increase for plots
+
 const atrPercentageData = ref([])
 watch(selectedScale, async (newScale) => {
   if (!selectedDate.value || !selectedDataType.value || !newScale) {
@@ -241,7 +189,7 @@ watch(selectedScale, async (newScale) => {
     atrPercentageData.value = []
     return
   }
-  // Fetch costs
+
   try {
     const res = await fetch(`/api/climate_impact/api/get-costs?date=${encodeURIComponent(selectedDate.value)}&dataType=${encodeURIComponent(selectedDataType.value)}&scale=${encodeURIComponent(newScale)}`)
     const data = await res.json()
@@ -251,7 +199,7 @@ watch(selectedScale, async (newScale) => {
     console.error('Failed to fetch costs', e)
     costOptions.value = []
   }
-  // Fetch ATR percentage increase for plots
+
   try {
     const res = await fetch(`/api/climate_impact/api/get-atr-percentage-increase?date=${encodeURIComponent(selectedDate.value)}&scale=${encodeURIComponent(newScale)}`)
     const data = await res.json()
@@ -262,7 +210,7 @@ watch(selectedScale, async (newScale) => {
   }
 })
 
-// --- Static options ---
+
 const categories = ['Energy', 'Transport', 'Agriculture', 'Industry']
 const years = [2022, 2023, 2024, 2025]
 
@@ -271,14 +219,14 @@ const timeOptions = ref([])
 const selectedFlightLevel = ref('')
 const selectedTime = ref('')
 
-// --- Helper to format time in 24-hour format (0 -> 12:00, 3600 -> 13:00, etc.) ---
+
 function formatTimeLabel(timeVal) {
-  // Accepts seconds since 12:00 (noon)
+
   const sec = Number(timeVal)
   if (isNaN(sec)) return String(timeVal)
   const hour = 12 + Math.floor(sec / 3600)
   const min = Math.floor((sec % 3600) / 60)
-  // Pad with zeros
+
   const hourStr = hour.toString().padStart(2, '0')
   const minStr = min.toString().padStart(2, '0')
   return `${hourStr}:${minStr}`
@@ -292,15 +240,15 @@ const selectedTimeDisplay = computed({
     return timeOptionsDisplay.value[idx] || ''
   },
   set(val) {
-    // Find the original value by display label
+
     const idx = timeOptionsDisplay.value.findIndex(opt => opt === val)
     selectedTime.value = timeOptions.value[idx] || ''
   }
 })
 
-// Watch for cost change and populate altitude and time filters
+
 watch(selectedCost, async (newCost) => {
-  // Only fetch if all required filters are selected
+
   if (!selectedDate.value || !selectedDataType.value || !selectedScale.value || !newCost) {
     flightLevelOptions.value = []
     timeOptions.value = []
@@ -313,7 +261,7 @@ watch(selectedCost, async (newCost) => {
     return
   }
   try {
-    // Send all filter values to backend, let backend resolve the file
+
     const params = new URLSearchParams({
       date: selectedDate.value,
       dataType: selectedDataType.value,
@@ -326,7 +274,7 @@ watch(selectedCost, async (newCost) => {
     timeOptions.value = Array.isArray(metaData.times) ? metaData.times : []
     selectedFlightLevel.value = ''
     selectedTime.value = ''
-    // Set bounds and min/max if present
+
     if (
       typeof metaData.lat_min === 'number' &&
       typeof metaData.lat_max === 'number' &&
@@ -340,7 +288,7 @@ watch(selectedCost, async (newCost) => {
     } else {
       heatmapBounds.value = null
     }
-    // Always use fixed colorbar range
+
     colorBarMinRaw.value = COLOR_BAR_MIN_VALUE
     colorBarMaxRaw.value = COLOR_BAR_MAX_VALUE
   } catch (e) {
@@ -362,13 +310,13 @@ watch([
   selectedFlightLevel,
   selectedTime
 ], async ([date, dataType, scale, cost, flightLevel, time]) => {
-  // Only fetch if all are selected
+
   if (!date || !dataType || !scale || !cost || !flightLevel || !time) {
     heatmapImageUrl.value = ''
     return
   }
   try {
-    // Ask backend for the file base name (reuse get-netcdf-metadata logic)
+
     const params = new URLSearchParams({
       date,
       dataType,
@@ -381,14 +329,14 @@ watch([
       heatmapImageUrl.value = ''
       return
     }
-    // Find the index of the selected flight level and time
+
     const altIdx = flightLevelOptions.value.findIndex(a => a === flightLevel)
     const timeIdx = timeOptions.value.findIndex(t => t === time)
     if (altIdx === -1 || timeIdx === -1) {
       heatmapImageUrl.value = ''
       return
     }
-    // Build the overlay URL
+
     const url = `/api/climate_impact/api/get-heatmap-overlay?file=${encodeURIComponent(metaData.file_base)}&date=${encodeURIComponent(date)}&altitude=${altIdx}&time=${timeIdx}`
     heatmapImageUrl.value = url
   } catch (e) {
@@ -396,25 +344,25 @@ watch([
   }
 })
 
-// --- Dynamic colorbar gradient ---
+
 const colorBarGradient = computed(() => {
   const dt = selectedDataType.value ? selectedDataType.value.replace(/_/g, '').toLowerCase() : '';
   if (dt === 'contrails' || dt === 'netatr') {
     return 'linear-gradient(to right, #0052cc 0%, #fff 50%, #ff2d55 100%)';
   }
-  // Default: white to red
+
   return 'linear-gradient(to right, #fff 0%, #ff2d55 100%)';
 })
 
-// --- Display label for selectedDataType ---
+
 const selectedDataTypeLabel = computed(() => {
   if (!selectedDataType.value) return '';
   if (selectedDataType.value.replace(/_/g, '').toLowerCase() === 'netatr') return 'Net ATR';
-  // Capitalize first letter, lowercase rest
+
   return selectedDataType.value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 })
 
-// --- Heatmap color bar min/max ---
+
 const COLOR_BAR_MIN_VALUE = -2e-9
 const COLOR_BAR_MAX_VALUE = 2e9
 
@@ -425,7 +373,7 @@ function formatSci(val) {
   if (val === '-' || val === '' || val == null) return '-';
   const num = Number(val);
   if (isNaN(num)) return String(val);
-  // Show 2 significant digits in scientific notation
+
   return num.toExponential(2).replace(/e\+?(-?\d+)/, 'e$1');
 }
 
@@ -435,7 +383,7 @@ const colorBarMax = computed(() => formatSci(colorBarMaxRaw.value));
 const colorBarMinLabel = computed(() => `${colorBarMin.value} K`);
 const colorBarMaxLabel = computed(() => `${colorBarMax.value} K`);
 
-// Layout helper to keep bar plots full-width and hide axes lines
+
 function makeBarLayout(title, tickvals = [], xData = []) {
   const nums = Array.isArray(xData) ? xData.filter(v => typeof v === 'number' && !isNaN(v)) : [];
   let min = Math.min(0, ...nums);
@@ -487,9 +435,9 @@ function makeBarLayout(title, tickvals = [], xData = []) {
 }
 
 
-// Function to generate distinct colors for any number of categories
+
 function getCategoryColors(n) {
-  // Use RefMap green for all bars
+
   const refmapGreen = '#21CE99';
   return Array(n).fill(refmapGreen);
 }
@@ -515,8 +463,8 @@ const barCharts = ref([
         + '<span style="color:#21CE99;font-size:1.05em;">Change vs BAU:</span> <b style="color:#ff2d55;">%{x:.2f}%</b>'
         + '</div><extra></extra>',
     }],
-      layout: {
-        autosize: true,
+    layout: {
+      autosize: true,
       title: { text: 'Net ATR', font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
       yaxis: {
         title: 'Increase in Cost (%)',
@@ -567,8 +515,8 @@ const barCharts = ref([
         + '<span style="color:#21CE99;font-size:1.05em;">Change vs BAU:</span> <b style="color:#ff2d55;">%{x:.2f}%</b>'
         + '</div><extra></extra>',
     }],
-      layout: {
-        autosize: true,
+    layout: {
+      autosize: true,
       title: { text: 'NOx', font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
       yaxis: {
         title: 'Increase in Cost (%)',
@@ -614,8 +562,8 @@ const barCharts = ref([
       textposition: 'auto',
       textfont: { color: '#fff', size: 14 },
     }],
-      layout: {
-        autosize: true,
+    layout: {
+      autosize: true,
       title: { text: 'H₂O', font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
       yaxis: {
         title: 'Increase in Cost (%)',
@@ -661,8 +609,8 @@ const barCharts = ref([
       textposition: 'auto',
       textfont: { color: '#fff', size: 14 },
     }],
-      layout: {
-        autosize: true,
+    layout: {
+      autosize: true,
       title: { text: 'CO₂', font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
       yaxis: {
         title: 'Increase in Cost (%)',
@@ -708,8 +656,8 @@ const barCharts = ref([
       textposition: 'auto',
       textfont: { color: '#fff', size: 14 },
     }],
-      layout: {
-        autosize: true,
+    layout: {
+      autosize: true,
       title: { text: 'AIC', font: { color: '#fff', size: 18, family: 'inherit', weight: 'bold' }, x: 0.5, y: 0.98 },
       yaxis: {
         title: 'Increase in Cost (%)',
@@ -744,15 +692,15 @@ const barCharts = ref([
   }
 ])
 
-// Helper to format data type labels for display
+
 function formatDataTypeLabel(type) {
   if (!type) return ''
   if (type.replace(/_/g, '').toLowerCase() === 'netatr') return 'Net ATR'
-  // Capitalize first letter, lowercase rest, replace _ with space
+
   return type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
-// Helper to format cost options for display (e.g., 10 -> "10%", but "noCost" stays as is)
+
 function formatCostLabel(cost) {
   if (cost === null || cost === undefined || cost === '') return ''
   if (cost === 'noCost') return 'noCost'
@@ -760,7 +708,7 @@ function formatCostLabel(cost) {
   return `${cost}%`
 }
 
-// Helper to format date options for display (e.g., 20122018 -> 20 Dec 2018)
+
 function formatDateLabel(dateStr) {
   if (!dateStr || typeof dateStr !== 'string' || dateStr.length !== 8) return dateStr;
   const day = dateStr.slice(0, 2);
@@ -780,7 +728,7 @@ const selectedDateDisplay = computed({
     return dateOptionsDisplay.value[idx] || ''
   },
   set(val) {
-    // Find the original value by display label
+
     const idx = dateOptionsDisplay.value.findIndex(opt => opt === val)
     selectedDate.value = dateOptions.value[idx] || ''
   }
@@ -807,19 +755,19 @@ const selectedCostDisplay = computed({
     return costOptionsDisplay.value[idx] || ''
   },
   set(val) {
-    // Remove % and match to original value
+
     const raw = typeof val === 'string' ? val.replace(/%$/, '') : val
     const idx = costOptions.value.findIndex(opt => String(opt) === raw)
     selectedCost.value = costOptions.value[idx] || ''
   }
 })
 
-// --- Helper to order scale options as BAU, Micro, Macro ---
+
 function orderScaleOptions(scales) {
   if (!Array.isArray(scales)) return []
   const order = ['BAU', 'Micro', 'Macro']
   const lower = s => (s || '').toLowerCase()
-  // Place known in order, then any others
+
   const ordered = order
     .map(key => scales.find(s => lower(s) === key.toLowerCase()))
     .filter(Boolean)
@@ -831,23 +779,23 @@ const scaleOptionsOrdered = computed(() => orderScaleOptions(scaleOptions.value)
 
 const selectedScaleOrdered = computed({
   get() {
-    // Return the selected scale value if it exists in the ordered list, else blank
+
     return scaleOptionsOrdered.value.find(opt => opt === selectedScale.value) || ''
   },
   set(val) {
-    // Set selectedScale.value directly to the selected value from the ordered list
+
     if (scaleOptions.value.includes(val)) {
       selectedScale.value = val
     } else {
-      // fallback: try to match ignoring case
+
       const match = scaleOptions.value.find(opt => (opt || '').toLowerCase() === (val || '').toLowerCase())
       selectedScale.value = match || ''
     }
   }
 })
 
-// --- Dynamic bar chart for ATR percentage increase ---
-// Update barCharts when atrPercentageData changes
+
+
 watch(atrPercentageData, (data) => {
   const metrics = [
     { key: 'Net_ATR', label: 'Net ATR' },

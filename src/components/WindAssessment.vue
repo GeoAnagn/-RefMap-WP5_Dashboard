@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-bg">
     <div class="wind-assessment-container">
-      <!-- Section 1: Header -->
+      
       <div class="wind-assessment-section wind-assessment-section-header">
         <v-btn icon class="back-arrow-btn" @click="$emit('close')">
           <v-icon>mdi-arrow-left</v-icon>
@@ -11,14 +11,14 @@
         </v-btn>
       </div>
 
-      <!-- Section 2: Title -->
+      
       <div class="wind-assessment-section wind-assessment-section-title">
         <span class="ltr-letters-wrapper ltr-letters-animate">
           <span class="ltr-letters">Wind Risk Assessment</span>
         </span>
       </div>
 
-      <!-- Section 3: Filters -->
+      
       <div class="wind-assessment-section wind-assessment-section-filters">
         <div class="filters-row">
           <v-select
@@ -67,7 +67,7 @@
         </div>
       </div>
 
-      <!-- Section 4: Cards -->
+      
       <div class="wind-assessment-section wind-assessment-section-cards">
         <div class="wind-assessment-cards-grid">
           <v-card elevation="6" class="refmap-card refmap-card-inline map-card-shell">
@@ -96,7 +96,7 @@
                   />
                 </LMap>
               </template>
-              <!-- Wind knob overlay in map area -->
+              
               <div v-if="filters.altitude" class="wind-knob-wrapper wind-knob-overlay">
                 <div class="wind-knob-value" style="margin-bottom: 0.3rem; font-weight: bold;">Wind Source</div>
                 <svg
@@ -125,7 +125,7 @@
                     <text v-for="(dir, i) in compassLabels" :key="dir.label" :x="60 + 38 * Math.sin(dir.angle * Math.PI/180)" :y="60 - 38 * Math.cos(dir.angle * Math.PI/180) + 7" text-anchor="middle" font-size="17" fill="#333" font-weight="bold">{{ dir.label }}</text>
                   </g>
                   <g>
-                    <!-- Triangle handle only -->
+                    
                     <polygon
                       :points="arrowPoints(60, 60, selectedWindDirection)"
                       fill="#21CE99"
@@ -159,26 +159,26 @@ import 'leaflet/dist/leaflet.css';
 import { LMap, LTileLayer, LImageOverlay } from '@vue-leaflet/vue-leaflet';
 import DocumentationOverlay from './DocumentationOverlay.vue';
 
-// --- Wind Assessment Tool Filters (from backend) ---
+
 const lodOptions = ref([])
 const cityOptions = ref([])
 const parameterOptions = ref([])
 const altitudeOptions = ref([])
 const altitudeDisplayOptions = computed(() => {
-  // Map altitudeOptions to objects with label/value for v-select
+  
   return altitudeOptions.value.map(val => ({
     label: val + ' m',
     value: val
   }))
 })
-// Display options for LoD (map 1.1 -> Low, 2.2 -> High iff those are the only two)
+
 const lodDisplayOptions = computed(() => {
   const opts = lodOptions.value
-  const showLowHigh = opts.length === 2 && opts.includes('1.1') && opts.includes('2.2')
+  const showLowHigh = opts.length === 2 && opts.includes('1.2') && opts.includes('2.2')
   if (showLowHigh) {
-    return opts.map(v => ({ label: v === '1.1' ? 'Low' : 'High', value: v }))
+    return opts.map(v => ({ label: v === '1.2' ? 'Low' : 'High', value: v }))
   }
-  // default: show raw values
+  
   return opts.map(v => ({ label: v, value: v }))
 })
 const windOptions = ref([])
@@ -189,7 +189,7 @@ const filters = ref({
   parameter: null,
   altitude: null,
 })
-const selectedWindDirection = ref(0); // This will be the wind index
+const selectedWindDirection = ref(0); 
 
 const knobSize = 120
 const compassLabels = [
@@ -199,29 +199,29 @@ const compassLabels = [
   { label: 'W', angle: 270 }
 ]
 
-// --- Fetch available combinations from backend ---
+
 const availableCombos = ref({})
 
-// Draw triangle arrow centered at (cx, cy), pointing in deg direction
+
 function arrowPoints(cx, cy, deg) {
-  // Arrow size
-  const length = 28; // length of arrow
-  const width = 16; // width of arrow base
-  // Reverse direction by adding 180 degrees
+  
+  const length = 28; 
+  const width = 16; 
+  
   const angle = (deg - 90 + 180) * Math.PI / 180;
-  // Tip of arrow
+  
   const tipX = cx + length * Math.cos(angle);
   const tipY = cy + length * Math.sin(angle);
-  // Base points
+  
   const baseX = cx - length * 0.5 * Math.cos(angle);
   const baseY = cy - length * 0.5 * Math.sin(angle);
-  // Perpendicular for width
+  
   const perpAngle = angle + Math.PI / 2;
   const leftX = baseX + (width / 2) * Math.cos(perpAngle);
   const leftY = baseY + (width / 2) * Math.sin(perpAngle);
   const rightX = baseX - (width / 2) * Math.cos(perpAngle);
   const rightY = baseY - (width / 2) * Math.sin(perpAngle);
-  // Return as SVG points string
+  
   return `${tipX},${tipY} ${leftX},${leftY} ${rightX},${rightY}`;
 }
 
@@ -230,13 +230,13 @@ onMounted(async () => {
     const res = await fetch('/api/wind_assessment/api/available_combinations')
     if (!res.ok) {
        console.warn('API returned status:', res.status);
-       // Ensure arrays are empty so filters show nothing (or you can show a user alert)
+       
        availableCombos.value = {};
        lodOptions.value = [];
        return;
     }
     const data = await res.json()
-    // Optional: check if data is empty object
+    
     if (!data || Object.keys(data).length === 0) {
        availableCombos.value = {};
        lodOptions.value = [];
@@ -246,13 +246,13 @@ onMounted(async () => {
     lodOptions.value = Object.keys(data)
   } catch (e) {
     console.error('Failed to fetch available combinations', e)
-    // Clear options on error
+    
     availableCombos.value = {};
     lodOptions.value = [];
   }
 })
 
-// Update city options when LoD changes
+
 watch(() => filters.value.lod, (newLoD) => {
   filters.value.city = null
   filters.value.parameter = null
@@ -266,7 +266,7 @@ watch(() => filters.value.lod, (newLoD) => {
   cityOptions.value = Object.keys(availableCombos.value[newLoD])
 })
 
-// Update parameter options when City changes
+
 watch(() => filters.value.city, (newCity) => {
   filters.value.parameter = null
   filters.value.altitude = null
@@ -275,12 +275,12 @@ watch(() => filters.value.city, (newCity) => {
   altitudeOptions.value = []
   windOptions.value = []
   if (!filters.value.lod || !newCity || !availableCombos.value[filters.value.lod]?.[newCity]) return
-  // Gather all unique params for this city
+  
   const combos = availableCombos.value[filters.value.lod][newCity].combinations || []
   parameterOptions.value = [...new Set(combos.map(c => c.param))]
 })
 
-// Update altitude options when Parameter changes
+
 watch(() => filters.value.parameter, (newParam) => {
   filters.value.altitude = null
   selectedWindDirection.value = 0
@@ -291,7 +291,7 @@ watch(() => filters.value.parameter, (newParam) => {
   altitudeOptions.value = [...new Set(combos.filter(c => c.param === newParam).map(c => c.zloc))]
 })
 
-// Update wind options when Altitude changes
+
 watch(() => filters.value.altitude, (newAlt) => {
   selectedWindDirection.value = 0
   windOptions.value = []
@@ -301,11 +301,11 @@ watch(() => filters.value.altitude, (newAlt) => {
   windOptions.value = combo ? combo.winds : []
 })
 
-// --- Wind knob logic (use windOptions for valid indices) ---
+
 function getKnobHandlePos(deg) {
   const r = 42
-  // 0° is North, 90° is East, 180° is South, 270° is West
-  // SVG 0° is vertical down, so subtract 90° to rotate to North
+  
+  
   const adjustedDeg = deg - 90
   const rad = adjustedDeg * Math.PI/180
   return {
@@ -314,7 +314,7 @@ function getKnobHandlePos(deg) {
   }
 }
 const knobHandle = computed(() => {
-  // If windOptions is set, snap to those degrees, else use selectedWindDirection
+  
   let deg = selectedWindDirection.value
   return getKnobHandlePos(deg)
 })
@@ -348,13 +348,13 @@ function onKnobDrag(e) {
   const rect = e.target.closest('svg').getBoundingClientRect()
   const x = clientX - rect.left - 60
   const y = clientY - rect.top - 60
-  // SVG 0° is vertical down, so subtract 90° to rotate to North
+  
   let deg = Math.atan2(y, x) * 180/Math.PI + 90
   if (deg < 0) deg += 360
   if (deg >= 360) deg -= 360
-  // Snap to nearest wind index
+  
   if (windOptions.value.length > 0) {
-    // Find closest wind direction
+    
     let closest = windOptions.value.reduce((prev, curr) => {
       return Math.abs(curr - deg) < Math.abs(prev - deg) ? curr : prev
     }, windOptions.value[0])
@@ -365,10 +365,10 @@ function onKnobDrag(e) {
 }
 
 const windDirectionLabel = computed(() => {
-  // Map degrees to compass label
+  
   const degrees = selectedWindDirection.value
   if (degrees === '' || degrees === null || degrees === undefined) return ''
-  // 0° is North, 90° is East, 180° is South, 270° is West
+  
   const normalizedDegrees = ((degrees % 360) + 360) % 360
   const compassDirections = [
     { min: 0, max: 22.5, label: 'N' },
@@ -386,10 +386,10 @@ const windDirectionLabel = computed(() => {
       return direction.label
     }
   }
-  return 'N' // fallback to North
+  return 'N' 
 })
 
-// --- Map and overlay logic ---
+
 const mapCenter = ref([52, 10])
 const minZoom = 4
 const maxZoom = 18
@@ -402,7 +402,7 @@ const mapRefEl = ref(null)
 let mapRef = null
 onMounted(() => {
   showMap.value = true
-  // Watch for mapRefEl changes to get the map instance
+  
   watch(mapRefEl, (val) => {
     if (val && val.leafletObject) {
       mapRef = val.leafletObject
@@ -418,7 +418,7 @@ const heatmapBounds = ref(null)
 const colorBarMin = ref('-')
 const colorBarMax = ref('-')
 
-// Fetch overlay info when all filters are selected
+
 watch([
   () => filters.value.lod,
   () => filters.value.city,
@@ -437,19 +437,19 @@ watch([
     const res = await fetch(`/api/wind_assessment/api/image_info?lod=${encodeURIComponent(lod)}&city=${encodeURIComponent(city)}&param=${encodeURIComponent(param)}&zloc=${encodeURIComponent(zloc)}&wind=${encodeURIComponent(wind)}`)
     const data = await res.json()
     if (data.error) throw new Error(data.error)
-    // Use base64 image_data if present
+    
     if (data.image_data) {
       heatmapImageUrl.value = `data:image/png;base64,${data.image_data}`
     } else {
       heatmapImageUrl.value = ''
     }
     heatmapBounds.value = data.bounds
-    // Remove dynamic min/max for Turbulence Level and Wind Speed
+    
     if (!(filters.value.parameter === 'Turbulence Level' || filters.value.parameter === 'Wind Speed')) {
       colorBarMin.value = data.minVal
       colorBarMax.value = data.maxVal
     }
-    // --- Auto-zoom to bounds ---
+    
     await nextTick()
     if (mapRef && data.bounds) {
       if (typeof mapRef.fitBounds === 'function') {
@@ -465,7 +465,7 @@ watch([
   }
 })
 
-// Also refocus whenever bounds change (defensive against async UI timing)
+
 watch(heatmapBounds, async (newBounds) => {
   if (!newBounds) return
   await nextTick()
@@ -477,9 +477,9 @@ watch(heatmapBounds, async (newBounds) => {
   }
 })
 
-// --- Dynamic colorbar gradient ---
+
 const colorBarGradient = computed(() => {
-  // Matplotlib RdBu_r approximation: Blue (low) -> White -> Red (high)
+  
   const gradient = 'linear-gradient(to right, #2166ac 0%, #f7f7f7 50%, #b2182b 100%)';
   
   if (filters.value.parameter === 'Turbulence Level') {
@@ -488,11 +488,11 @@ const colorBarGradient = computed(() => {
   if (filters.value.parameter === 'Wind Speed') {
     return gradient;
   }
-  // Default fallback
+  
   return gradient;
 })
 
-// --- Color bar min/max for Turbulence Level and Wind Speed ---
+
 watch(() => filters.value.parameter, (param) => {
   if (param === 'Turbulence Level') {
     colorBarMin.value = '0%'
@@ -503,7 +503,7 @@ watch(() => filters.value.parameter, (param) => {
   }
 })
  
-// --- Add documentation button handler ---
+
 const showDocOverlay = ref(false)
 
 function openDocumentation() {
@@ -514,7 +514,7 @@ function closeDocumentation() {
   showDocOverlay.value = false
 }
 
-// Old function kept for reference
+
 function openDocumentation_old() {
   showDocOverlay.value = true
   docCardIndex.value = 0

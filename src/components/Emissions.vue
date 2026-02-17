@@ -1,7 +1,7 @@
 <template>
 	<div class="dashboard-bg">
 		<div class="emissions-container">
-			<!-- Section 1: Header -->
+			
 			<div class="emissions-section emissions-section-header">
 				<v-btn icon class="back-arrow-btn" @click="$emit('close')">
 					<v-icon>mdi-arrow-left</v-icon>
@@ -11,14 +11,14 @@
 				</v-btn>
 			</div>
 
-			<!-- Section 2: Title -->
+			
 			<div class="emissions-section emissions-section-title">
 				<span class="ltr-letters-wrapper ltr-letters-animate">
 					<span class="ltr-letters">Emissions</span>
 				</span>
 			</div>
 
-			<!-- Section 3: Filters -->
+			
 			<div class="emissions-section emissions-section-filters">
         <v-card class="filters-card refmap-card-inline" elevation="0">
           <v-row class="filter-row" dense justify="center" align="center">
@@ -63,7 +63,7 @@
         </v-card>
 			</div>
 
-      <!-- Section 4: Cards -->
+      
       <div class="emissions-section emissions-section-cards">
         <div class="emissions-cards-grid two-column">
           <v-card elevation="6" class="refmap-card refmap-card-inline map-card-shell">
@@ -160,7 +160,7 @@ import 'leaflet/dist/leaflet.css'
 import { LMap, LTileLayer, LImageOverlay } from '@vue-leaflet/vue-leaflet'
 import DocumentationOverlay from './DocumentationOverlay.vue'
 
-// Filters
+
 const reductionOptions = ref([])
 const metricOptions = ref([])
 const selectedReduction = ref('')
@@ -168,11 +168,11 @@ const selectedMetric = ref('')
 const showDifference = ref(false)
 const reductionDisplayOptions = computed(() => reductionOptions.value.map((r) => ({ title: `${r}%`, value: r })))
 
-// Map state
+
 const mapCenter = ref([52.0, 4.37])
 const minZoom = ref(5)
 const maxZoom = ref(18)
-const europeBounds = ref([[[28.0, -15.5], [70.5, 50.0]]]) // (lat_min, lon_min) to (lat_max, lon_max) from backend extent
+const europeBounds = ref([[[28.0, -15.5], [70.5, 50.0]]]) 
 const overlayLatOffsetDeg = 0
 const overlayLonOffsetDeg = 0
 const isSyncing = ref(false)
@@ -236,7 +236,7 @@ function colorbarComputed(state) {
     }
   })
 
-  // Expose plain getters so templates don't need `.value` and the style binding stays reactive
+  
   return {
     get visible() { return visible.value },
     get labelLeft() { return labelLeft.value },
@@ -281,7 +281,7 @@ function syncFromCase() {
   syncMaps(mapCaseRef, mapBaseRef)
 }
 
-// no-op helper removed (case selection handled via toggle)
+
 
 async function loadOverlay(metric, kase, state, mapRef, reduction) {
   resetOverlay(state)
@@ -294,7 +294,7 @@ async function loadOverlay(metric, kase, state, mapRef, reduction) {
 
     const urlFromApi = data.image_url ? new URL(data.image_url, window.location.origin).toString() : ''
     const urlFromBase64 = data.image_data ? `data:image/png;base64,${data.image_data}` : ''
-    // Prefer base64 when present to avoid any proxy/path issues; otherwise use URL
+    
     state.url.value = urlFromBase64 || urlFromApi
 
     if (!state.url.value) {
@@ -308,16 +308,16 @@ async function loadOverlay(metric, kase, state, mapRef, reduction) {
       if (typeof data.colorbar.units === 'string') state.colorbarUnits.value = data.colorbar.units
       if (typeof data.colorbar.type === 'string') state.colorbarType.value = data.colorbar.type
     }
-    // Always force diverging with fixed range when backend omits fields
+    
     if (!state.colorbarType.value) state.colorbarType.value = 'diverging'
     if (state.colorbarMin.value === null) state.colorbarMin.value = -0.5
     if (state.colorbarMax.value === null) state.colorbarMax.value = 0.5
     if (!state.colorbarUnits.value && metric && metric.toLowerCase().includes('no')) {
-      // Backend sometimes omits units for NO* metrics; default to ppbv so the label is visible
+      
       state.colorbarUnits.value = 'ppbv'
     }
     
-    // Zoom to overlay bounds after loading
+    
     await zoomToOverlayBounds(mapRef, state.bounds.value)
   } catch (err) {
     resetOverlay(state)
@@ -333,27 +333,27 @@ async function zoomToOverlayBounds(mapRef, bounds) {
   if (!map) return
   
   try {
-    // Import Leaflet dynamically if needed
+    
     const L = await import('leaflet')
     
-    // Create Leaflet bounds object
+    
     const leafletBounds = L.default.latLngBounds(bounds)
     
-    // Calculate appropriate zoom level
+    
     const mapContainer = map.getContainer()
     const mapSize = { x: mapContainer.offsetWidth, y: mapContainer.offsetHeight }
     const boundsSize = map.project(leafletBounds.getNorthEast(), 18)
       .subtract(map.project(leafletBounds.getSouthWest(), 18))
     
     const zoom = Math.min(
-      maxZoom.value, // Maximum zoom
+      maxZoom.value, 
       Math.max(
-        minZoom.value, // Minimum zoom
+        minZoom.value, 
         Math.floor(Math.log2(Math.min(mapSize.x / boundsSize.x, mapSize.y / boundsSize.y)))
       )
     )
     
-    // Fly to bounds with calculated zoom
+    
     map.flyToBounds(leafletBounds, {
       padding: [40, 40],
       animate: true,
@@ -361,7 +361,7 @@ async function zoomToOverlayBounds(mapRef, bounds) {
       easeLinearity: 0.25
     })
     
-    // Force zoom adjustment after animation for better visibility
+    
     setTimeout(() => {
       if (map) {
         const targetZoom = Math.min(zoom + 1, Math.min(10, maxZoom.value))
@@ -373,7 +373,7 @@ async function zoomToOverlayBounds(mapRef, bounds) {
   }
 }
 
-// Load reductions on mount
+
 onMounted(async () => {
   try {
     const resp = await fetch('/api/emissions/api/emissions_reductions')
@@ -384,7 +384,7 @@ onMounted(async () => {
   }
 })
 
-// When reduction changes, load metrics and reset selections
+
 watch(selectedReduction, async (reduction) => {
   selectedMetric.value = ''
   resetOverlay(overlayBase)
@@ -400,7 +400,7 @@ watch(selectedReduction, async (reduction) => {
   }
 })
 
-// When metric changes, load base and right overlays
+
 watch([selectedReduction, selectedMetric], async ([reduction, metric]) => {
   resetOverlay(overlayBase)
   resetOverlay(overlayCase)
@@ -408,19 +408,19 @@ watch([selectedReduction, selectedMetric], async ([reduction, metric]) => {
   await loadOverlay(metric, 'base', overlayBase, mapBaseRef, reduction)
   await loadOverlay(metric, currentRightCase.value, overlayCase, mapCaseRef, reduction)
   
-  // Sync both maps after loading overlays
+  
   await nextTick()
   syncFromBase()
 })
 
-// When toggle changes, refresh right overlay
+
 watch(currentRightCase, async (kase) => {
   if (!selectedReduction.value || !selectedMetric.value) return
   resetOverlay(overlayCase)
   await loadOverlay(selectedMetric.value, kase, overlayCase, mapCaseRef, selectedReduction.value)
 })
 
-// Docs overlay
+
 const showDocOverlay = ref(false)
 function openDocumentation() {
 	showDocOverlay.value = true

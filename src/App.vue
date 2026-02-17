@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-bg">
-    <!-- Tool views -->
+    
     <template v-if="showClimateImpact">
       <div class="dashboard-center tool-view">
         <ClimateImpact @close="closeClimateImpact" />
@@ -32,17 +32,17 @@
       </div>
     </template>
 
-    <!-- Dashboard home -->
+    
     <template v-else>
       <div class="dashboard-home-container">
-        <!-- Section 1: Logo -->
+        
         <transition name="fade">
           <div v-if="showLogo" class="dashboard-section dashboard-section-logo">
             <img src="./assets/refmap-logo.avif" alt="RefMap Logo" class="refmap-logo" />
           </div>
         </transition>
 
-        <!-- Section 2: Logo Text / Title -->
+        
         <div class="dashboard-section dashboard-section-title">
           <span class="ltr-letters-wrapper" :class="{ 'ltr-letters-animate': animateUp }">
             <span class="ltr-letters">
@@ -58,7 +58,7 @@
           </span>
         </div>
 
-        <!-- Section 3: Filters -->
+        
         <transition name="fade">
           <div v-if="showButtons" class="dashboard-section dashboard-section-filters">
             <v-btn
@@ -86,7 +86,7 @@
           </div>
         </transition>
 
-        <!-- Section 4: Cards -->
+        
         <transition name="fade">
           <div v-if="showButtons" class="dashboard-section dashboard-section-cards">
             <transition-group name="card-fade" tag="div" class="dashboard-cards-grid" v-if="filteredTools.length">
@@ -123,14 +123,14 @@
       </div>
     </template>
 
-    <!-- Unified footer -->
+    
     <transition name="fade">
       <footer v-if="showFooter" class="refmap-footer">
         <span class="footer-text">&copy; 2025 RefMap Project. All rights reserved.</span>
       </footer>
     </transition>
 
-    <!-- Documentation Overlay -->
+    
     <DocumentationOverlay :show="showDocOverlay" :toolId="currentDocTool" @close="closeDocumentation" />
 
   </div>

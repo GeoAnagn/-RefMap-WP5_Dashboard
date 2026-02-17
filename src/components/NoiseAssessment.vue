@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-bg">
     <div class="noise-assessment-container">
-      <!-- Section 1: Header -->
+      
       <div class="noise-assessment-section noise-assessment-section-header">
         <v-btn icon class="back-arrow-btn" @click="$emit('close')">
           <v-icon>mdi-arrow-left</v-icon>
@@ -11,14 +11,14 @@
         </v-btn>
       </div>
 
-      <!-- Section 2: Title -->
+      
       <div class="noise-assessment-section noise-assessment-section-title">
         <span class="ltr-letters-wrapper ltr-letters-animate">
           <span class="ltr-letters">Noise Assessment</span>
         </span>
       </div>
 
-      <!-- Section 3: Filters -->
+      
       <div class="noise-assessment-section noise-assessment-section-filters">
         <div class="filters-row">
           <v-select
@@ -75,7 +75,7 @@
         </div>
       </div>
 
-      <!-- Section 4: Cards -->
+      
       <div class="noise-assessment-section noise-assessment-section-cards">
         <div class="noise-assessment-cards-grid">
           <v-card elevation="6" class="refmap-card refmap-card-inline map-card-shell">
@@ -104,7 +104,7 @@
                   />
                 </LMap>
               </template>
-              <!-- Color bar overlay -->
+              
               <div v-if="overlayUrl" class="color-bar-container horizontal">
                 <div class="color-bar-label color-bar-label-left">{{ colorBarMin }}</div>
                 <div class="color-bar-overlay" :style="colorBarStyle"></div>
@@ -126,7 +126,7 @@ import 'leaflet/dist/leaflet.css';
 import { LMap, LTileLayer, LImageOverlay } from '@vue-leaflet/vue-leaflet';
 import DocumentationOverlay from './DocumentationOverlay.vue';
 
-// --- Filter options ---
+
 const cityOptions = ref([])
 const timeOptions = ref([])
 const flightZoneOptions = ref([])
@@ -143,25 +143,25 @@ const filters = ref({
 
 const availableCombos = ref({})
 
-// --- Map logic ---
 
-const mapCenter = ref([52.0, 4.37]) // Default center (Netherlands)
-const mapZoom = ref(5) // Start with 5, will update on bounds
+
+const mapCenter = ref([52.0, 4.37]) 
+const mapZoom = ref(5) 
 const minZoom = ref(4)
 const maxZoom = ref(18)
 const showMap = ref(false)
 const mapRefEl = ref(null)
-// overlayUrl and heatmapBounds already declared above
+
 const overlayUrl = ref("")
 const heatmapBounds = ref(null)
-// Add europeBounds as in WindAssessment.vue
+
 const europeBounds = ref([[34.5, -10.5], [71.5, 31.5]])
 
-// --- Color bar properties ---
+
 const colorBarMin = ref('0 dB')
 const colorBarMax = ref('100 dB')
 
-// Use the provided scale image with a fallback gradient
+
 const colorBarStyle = computed(() => {
   const fallbackGradient = 'linear-gradient(to right, ' +
     '#000080 0%, ' +
@@ -182,9 +182,9 @@ const colorBarStyle = computed(() => {
   };
 })
 
-// --- Fetch available filter options from backend step by step ---
+
 onMounted(async () => {
-  // Load available cities on mount
+  
   try {
     const resp = await fetch('/api/noise_assessment/api/noise_cities')
     cityOptions.value = await resp.json()
@@ -195,7 +195,7 @@ onMounted(async () => {
   }
 })
 
-// Fetch times when city changes
+
 watch(() => filters.value.city, async (newCity) => {
   filters.value.time = null
   filters.value.flightZone = null
@@ -214,7 +214,7 @@ watch(() => filters.value.city, async (newCity) => {
   }
 })
 
-// Fetch Flight Zones when City or Time changes
+
 watch(() => filters.value.time, async (newTime) => {
   filters.value.flightZone = null
   filters.value.flightsPerHour = null
@@ -231,7 +231,7 @@ watch(() => filters.value.time, async (newTime) => {
   }
 })
 
-// Fetch Flights Per Hour when Flight Zone changes (with city/time)
+
 watch(() => filters.value.flightZone, async (newZone) => {
   filters.value.flightsPerHour = null
   filters.value.metric = null
@@ -251,7 +251,7 @@ watch(() => filters.value.flightZone, async (newZone) => {
   }
 })
 
-// Fetch Metrics when Flights Per Hour changes
+
 watch(() => filters.value.flightsPerHour, async (newFph) => {
   filters.value.metric = null
   metricOptions.value = []
@@ -271,7 +271,7 @@ watch(() => filters.value.flightsPerHour, async (newFph) => {
   }
 })
 
-// Fetch overlay info and boundaries when all filters are selected
+
 watch(() => filters.value.metric, async (metric) => {
   overlayUrl.value = ''
   heatmapBounds.value = null
@@ -301,8 +301,8 @@ watch(() => filters.value.metric, async (metric) => {
     } else {
       heatmapBounds.value = null
     }
-    // Update colorbar labels based on metric
-    // Ambient -> 0–100 dB, L(AE)eq -> 0–100 dB, AnnoyanceShift(ambi) -> 0–10, HighAnnoyPerc(ambi) -> 0–100%
+    
+    
     const m = metric
     if (m === 'Ambient' || m === 'L(AE)eq') {
       colorBarMin.value = '0 dB'
@@ -314,7 +314,7 @@ watch(() => filters.value.metric, async (metric) => {
       colorBarMin.value = '0%'
       colorBarMax.value = '100%'
     } else {
-      // default fallback
+      
       colorBarMin.value = '0'
       colorBarMax.value = '100'
     }
@@ -324,10 +324,10 @@ watch(() => filters.value.metric, async (metric) => {
 })
 
 onBeforeUnmount(() => {
-  // Clean up if needed
+  
 })
 
-// When heatmap bounds update, refocus the map to fit them
+
 watch(heatmapBounds, async (newBounds) => {
   if (!newBounds) return
   await nextTick()
@@ -336,12 +336,12 @@ watch(heatmapBounds, async (newBounds) => {
     try {
       map.fitBounds(newBounds, { padding: [20, 20], animate: true })
     } catch (e) {
-      // ignore
+      
     }
   }
 })
 
-// --- Documentation overlay logic ---
+
 const showDocOverlay = ref(false)
 function openDocumentation() {
   showDocOverlay.value = true

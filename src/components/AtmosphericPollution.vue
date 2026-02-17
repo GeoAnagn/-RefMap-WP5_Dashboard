@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-bg">
     <div class="atmospheric-pollution-container">
-      <!-- Section 1: Header -->
+      
       <div class="atmospheric-pollution-section atmospheric-pollution-section-header">
         <v-btn icon class="back-arrow-btn" @click="$emit('close')">
           <v-icon>mdi-arrow-left</v-icon>
@@ -11,17 +11,17 @@
         </v-btn>
       </div>
 
-      <!-- Section 2: Title -->
+      
       <div class="atmospheric-pollution-section atmospheric-pollution-section-title">
         <span class="ltr-letters-wrapper ltr-letters-animate">
           <span class="ltr-letters">Atmospheric Pollution</span>
         </span>
       </div>
 
-      <!-- Section 3: Filters -->
+      
       <div class="atmospheric-pollution-section atmospheric-pollution-section-filters">
         <div class="filter-controls">
-          <!-- Area Selector -->
+          
           <v-select
             v-model="selectedArea"
             :items="areaOptions"
@@ -32,7 +32,7 @@
             hide-details
           ></v-select>
 
-          <!-- Species Selector -->
+          
           <v-select
             v-model="selectedSpecies"
             :items="speciesOptions"
@@ -45,7 +45,7 @@
             hide-details
           ></v-select>
 
-          <!-- Date Range -->
+          
           <v-text-field
             v-model="startDate"
             label="Start Date"
@@ -70,7 +70,7 @@
             :max="maxDate"
           ></v-text-field>
 
-          <!-- Interval Selector -->
+          
           <v-select
             v-model="interval"
             :items="intervalOptions"
@@ -81,7 +81,7 @@
             hide-details
           ></v-select>
 
-          <!-- Fetch Data Button -->
+          
           <v-btn
             @click="fetchTimeSeries"
             color="primary"
@@ -95,26 +95,29 @@
         </div>
       </div>
 
-      <!-- Section 4: Cards -->
+      
       <div class="atmospheric-pollution-section atmospheric-pollution-section-cards">
         <div class="atmospheric-pollution-cards-grid two-column">
-          <!-- Map Card -->
+          
           <v-card elevation="6" class="refmap-card refmap-card-inline map-card-shell">
             <div class="map-card-body">
               <div class="map-card-title">Map View</div>
               <template v-if="showMap">
                 <LMap
-                  ref="mapRef"
-                  :zoom="mapZoom"
-                  :center="mapCenter"
-                  :maxBounds="mapMaxBounds"
+                  ref="mapRefEl"
+                  :zoom="4"
+                  :center="[52.0, 10.0]"
+                  :bounds="heatmapOverlay.bounds"
+                  :minZoom="minZoom"
+                  :maxZoom="maxZoom"
+                  :maxBounds="europeBounds"
                   :use-global-leaflet="false"
                   class="map-leaflet"
                 >
                   <LTileLayer
                     url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
                     attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>"
-                    :maxZoom="18"
+                    
                   />
                   <LImageOverlay
                     v-if="heatmapOverlay.visible && heatmapOverlay.url && heatmapOverlay.bounds"
@@ -124,7 +127,7 @@
                   />
                 </LMap>
                 
-                <!-- Map Legend -->
+                
                 <div v-if="legendData.visible" class="map-legend">
                   <div class="legend-title">{{ legendData.species }}</div>
                   <div class="legend-gradient" :style="legendGradientStyle"></div>
@@ -138,7 +141,7 @@
             </div>
           </v-card>
 
-          <!-- Chart Card -->
+          
           <v-card elevation="6" class="refmap-card refmap-card-inline map-card-shell">
             <div class="map-card-body">
               <div class="map-card-title">Time Series Analysis</div>
@@ -190,16 +193,22 @@ import { LMap, LTileLayer, LImageOverlay } from '@vue-leaflet/vue-leaflet'
 
 Chart.register(...registerables)
 
-// Define emits
+
 const emit = defineEmits(['close'])
 
-// Map state
+
 const map = ref(null)
-const mapRef = ref(null)
+const mapRefEl = ref(null)
 const areaLayer = ref(null)
-const mapCenter = ref([52.3676, 4.9041])
-const mapZoom = ref(8)
-const mapMaxBounds = ref(null)
+const mapCenter = ref([52.0, 10.0])  
+const mapZoom = ref(4)
+const minZoom = 4
+const maxZoom = 18
+const europeBounds = [
+  [34.5, -11.25],
+  [71.0, 31.5]
+]
+const mapMaxBounds = ref(europeBounds)
 const heatmapOverlay = ref({
   url: '',
   bounds: null,
@@ -215,7 +224,7 @@ const legendData = ref({
 })
 const showMap = ref(false)
 
-// Data state
+
 const metadata = ref(null)
 const areaOptions = ref(['Amsterdam Airport'])
 const selectedArea = ref(null)
@@ -230,7 +239,7 @@ const statistics = ref({ average: 0, min: 0, max: 0, count: 0 })
 const chartInstance = ref(null)
 const areaGeometry = ref(null)
 
-// Interval options
+
 const intervalOptions = [
   { title: 'Daily', value: '1D' },
   { title: 'Weekly', value: '7D' },
@@ -238,10 +247,10 @@ const intervalOptions = [
   { title: 'Monthly', value: '1M' }
 ]
 
-// Documentation
+
 const showDocOverlay = ref(false)
 
-// Computed
+
 const currentUnit = computed(() => {
   if (!metadata.value) return ''
   const species = metadata.value.species.find(s => s.id === selectedSpecies.value)
@@ -249,7 +258,7 @@ const currentUnit = computed(() => {
 })
 
 const legendGradientStyle = computed(() => {
-  // YlOrRd colormap gradient (from matplotlib)
+  
   return {
     background: 'linear-gradient(to right, #ffffcc, #ffeda0, #fed976, #feb24c, #fd8d3c, #fc4e2a, #e31a1c, #bd0026, #800026)'
   }
@@ -265,14 +274,14 @@ const maxDate = computed(() => {
   return new Date(metadata.value.timeRange.max).toISOString().split('T')[0]
 })
 
-// Initialize map
+
 onMounted(async () => {
   await loadMetadata()
   showMap.value = true
   await initializeMap()
 })
 
-// Cleanup
+
 onUnmounted(() => {
   if (chartInstance.value) {
     chartInstance.value.destroy()
@@ -296,38 +305,52 @@ async function loadMetadata() {
 }
 
 async function initializeMap() {
-  // Wait for map to be ready
+  
   await new Promise(resolve => setTimeout(resolve, 300))
   
-  // Load Amsterdam Airport area geometry
+  
   await loadAreaGeometry()
 }
 
 async function loadAreaGeometry() {
   try {
-    const response = await fetch('/api/atmospheric_pollution/data/Amsterdam_airport.geojson')
-    if (!response.ok) throw new Error('Failed to load area geometry')
     
-    const geojson = await response.json()
-    areaGeometry.value = geojson.features[0].geometry
+    if (!areaGeometry.value) {
+      const response = await fetch('/api/atmospheric_pollution/data/Amsterdam_airport.geojson')
+      if (!response.ok) throw new Error('Failed to load area geometry')
+      
+      const geojson = await response.json()
+      areaGeometry.value = geojson.features[0].geometry
+    }
     
-    // Only add to map if leaflet instance is available
-    if (map.value && map.value.leafletObject) {
-      // Display area on map
+    
+    if (map.value) {
+      
       if (areaLayer.value) {
-        map.value.leafletObject.removeLayer(areaLayer.value)
+        map.value.removeLayer(areaLayer.value)
       }
       
+      
+      const geojson = {
+        type: "FeatureCollection",
+        features: [{
+          type: "Feature",
+          geometry: areaGeometry.value,
+          properties: {}
+        }]
+      };
+
       areaLayer.value = L.geoJSON(geojson, {
         style: {
           color: '#3498db',
           weight: 3,
           fillOpacity: 0.2
         }
-      }).addTo(map.value.leafletObject)
+      }).addTo(map.value)
       
-      // Fit map to area bounds
-      map.value.leafletObject.fitBounds(areaLayer.value.getBounds())
+      if (!heatmapOverlay.value.visible) {
+        map.value.fitBounds(areaLayer.value.getBounds())
+      }
     }
   } catch (error) {
     console.error('Error loading area geometry:', error)
@@ -355,7 +378,7 @@ async function loadHeatmap() {
     
     const data = await response.json()
     
-    // Set heatmap overlay
+    
     const bounds = [
       [data.bounds.latMin, data.bounds.lonMin],
       [data.bounds.latMax, data.bounds.lonMax]
@@ -367,7 +390,7 @@ async function loadHeatmap() {
       visible: true
     }
     
-    // Set legend data
+    
     if (data.legend) {
       legendData.value = {
         visible: true,
@@ -379,45 +402,27 @@ async function loadHeatmap() {
       }
     }
     
-    // Zoom to heatmap bounds and restrict panning
-    if (map.value && map.value.leafletObject) {
-      // Wait for next tick to ensure overlay is rendered
+    
+    if (map.value) {
+      
       await nextTick()
       
-      // Create Leaflet bounds object
       const leafletBounds = L.latLngBounds(bounds)
       
-      // Add padding to bounds for max bounds (prevent panning outside)
-      const paddedBounds = leafletBounds.pad(0.1) // 10% padding
-      mapMaxBounds.value = [[paddedBounds.getSouth(), paddedBounds.getWest()], [paddedBounds.getNorth(), paddedBounds.getEast()]]
-      
-      // Set max bounds on the map
-      map.value.leafletObject.setMaxBounds(paddedBounds)
-      
-      // Fit to bounds with animation
-      map.value.leafletObject.flyToBounds(leafletBounds, {
-        padding: [50, 50],
-        animate: true,
-        duration: 1.5,
-        maxZoom: 13
-      })
+      await nextTick()
+      if (data.bounds) {
+          map.value.fitBounds(leafletBounds, {
+            padding: [50, 50],
+            animate: true,
+            maxZoom: 16
+          })
+      }
     }
   } catch (error) {
     console.error('Error loading heatmap:', error)
     heatmapOverlay.value.visible = false
     legendData.value.visible = false
   }
-}
-
-function setDefaultDates() {
-  if (!metadata.value) return
-  
-  const end = new Date(metadata.value.timeRange.max)
-  const start = new Date(end)
-  start.setMonth(start.getMonth() - 3) // Default to 3 months
-  
-  endDate.value = end.toISOString().split('T')[0]
-  startDate.value = start.toISOString().split('T')[0]
 }
 
 async function fetchTimeSeries() {
@@ -452,11 +457,11 @@ async function fetchTimeSeries() {
     chartData.value = result.data
     statistics.value = result.statistics
 
-    // Update chart after DOM updates
+    
     await nextTick()
     updateChart()
     
-    // Load heatmap overlay
+    
     await loadHeatmap()
 
   } catch (error) {
@@ -473,19 +478,19 @@ function updateChart() {
   const ctx = document.getElementById('pollution-chart')
   if (!ctx) return
 
-  // Destroy existing chart
+  
   if (chartInstance.value) {
     chartInstance.value.destroy()
   }
 
-  // Prepare data
+  
   const labels = chartData.value.map(d => new Date(d.timestamp).toLocaleDateString())
   const values = chartData.value.map(d => d.value)
 
-  // Get species name
+  
   const speciesName = speciesOptions.value.find(s => s.id === selectedSpecies.value)?.name || selectedSpecies.value
 
-  // Create new chart
+  
   chartInstance.value = new Chart(ctx, {
     type: 'line',
     data: {
@@ -558,14 +563,14 @@ function closeDocumentation() {
   showDocOverlay.value = false
 }
 
-// Watch for species changes to update chart if data exists
+
 watch(selectedSpecies, () => {
   if (chartData.value && areaGeometry.value) {
     fetchTimeSeries()
   }
 })
 
-// Watch for area changes to reload geometry
+
 watch(selectedArea, async () => {
   await loadAreaGeometry()
   chartData.value = null
@@ -578,10 +583,31 @@ watch(selectedArea, async () => {
   }
 })
 
-// Watch mapRef to get leaflet instance
-watch(mapRef, (newVal) => {
+
+watch(mapRefEl, (newVal) => {
   if (newVal && newVal.leafletObject) {
-    map.value = newVal
+    map.value = newVal.leafletObject
+    
+    
+    if (areaGeometry.value) {
+       
+       loadAreaGeometry().then(() => {
+          
+          if (heatmapOverlay.value.visible && heatmapOverlay.value.bounds) {
+             nextTick(() => {
+                map.value.fitBounds(heatmapOverlay.value.bounds, { padding: [50, 50], animate: true, maxZoom: 16 })
+             })
+          }
+       })
+    }
+  }
+})
+
+watch(() => heatmapOverlay.value.bounds, (newBounds) => {
+  if (newBounds && map.value) {
+     nextTick(() => {
+        map.value.fitBounds(newBounds, { padding: [50, 50], animate: true, maxZoom: 16 })
+     })
   }
 })
 </script>

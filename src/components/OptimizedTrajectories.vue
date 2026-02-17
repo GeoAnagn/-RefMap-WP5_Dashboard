@@ -92,7 +92,7 @@ import DocumentationOverlay from './DocumentationOverlay.vue'
 
 const apiBase = '/api/optimized_trajectories'
 
-// State
+
 const allCases = ref([])
 const filters = ref({
   area: null,
@@ -103,7 +103,7 @@ const filters = ref({
 const gifBust = ref(Date.now())
 const isPlaying = ref(true)
 
-// --- Cascading Logic ---
+
 
 const availableAreas = computed(() => {
   return [...new Set(allCases.value.map(c => c.area))].sort()
@@ -134,7 +134,7 @@ const availableLanding = computed(() => {
   return [...new Set(subset.map(c => c.landing))].sort()
 })
 
-// Determine the actual path of the GIF to load
+
 const selectedCasePath = computed(() => {
   const match = allCases.value.find(c => 
     c.area === filters.value.area &&
@@ -150,7 +150,7 @@ const displayUrl = computed(() => {
   return `${apiBase}/gif/${encodeURIComponent(selectedCasePath.value)}?t=${gifBust.value}`
 })
 
-// --- Watchers to reset children when parents change ---
+
 
 watch(() => filters.value.area, () => {
   filters.value.turbulence = null; filters.value.takeoff = null; filters.value.landing = null
@@ -162,7 +162,7 @@ watch(() => filters.value.takeoff, () => {
   filters.value.landing = null
 })
 
-// --- Methods ---
+
 
 function replayGif() {
   gifBust.value = Date.now()
@@ -174,7 +174,7 @@ onMounted(async () => {
     const data = await res.json()
     allCases.value = data.cases || []
     
-    // Auto-select first available option
+    
     if (allCases.value.length > 0) {
       const first = allCases.value[0]
       filters.value.area = first.area
@@ -187,7 +187,7 @@ onMounted(async () => {
   }
 })
 
-// Doc overlay logic
+
 const showDocOverlay = ref(false)
 const openDocumentation = () => { showDocOverlay.value = true }
 const closeDocumentation = () => { showDocOverlay.value = false }
