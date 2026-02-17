@@ -10,14 +10,11 @@
             {
               "content": [
                 { "type": "paragraph", "text": "<hr>" },
-                { "type": "paragraph", "text": "The climate impact of non-CO₂ emissions, which account for two-thirds of aviation's radiative forcing, is heavily influenced by atmospheric chemistry and weather conditions." },
-                { "type": "paragraph", "text": "There is significant potential to reduce these effects by avoiding 'climate-sensitive regions' (areas where non-CO₂ impacts are enhanced). This is achieved by planning aircraft trajectories to reroute around these specific atmospheric conditions." },
-                { "type": "paragraph", "text": "While promising in theory, flight planning at the individual trajectory scale (micro-scale) faces major obstacles when applied to global traffic scenarios. Air Traffic Management (ATM) is a complex multi-agent system, its collective behavior relies on the interaction between individual trajectories and the wider ATM network (macro-scale)." },
-                { "type": "paragraph", "text": "Planning trajectories in isolation introduces several cascading <b>challenges</b>:" },
-                { "type": "paragraph", "text": "1. <b>Traffic Displacement</b>:<br> Adopting climatically optimized trajectories evacuates regions sensitive to warming but increases congestion in \"cooling\" climate-sensitive areas." },
-                { "type": "paragraph", "text": "2. <b>Increased Complexity</b>:<br> This shift in air traffic flow drastically increases traffic complexity in these newly congested regions." },
-                { "type": "paragraph", "text": "3. <b>Safety Hazards</b>:<br> The resulting congestion poses potential safety risks that individual planning cannot foresee." },
-                { "type": "paragraph", "text": "Because of these interdependencies, environmental benefits cannot be evaluated by looking at single flights alone. It is essential to conduct analyses at the network level, accounting for the collective behavior of all flights within the system to ensure both environmental mitigation and operational safety." },
+                { "type": "paragraph", "text": "The climate impact of non-CO₂ emissions, which account for two-thirds of aviation’s radiative forcing, is heavily influenced by atmospheric chemistry and weather conditions. There is significant potential to reduce these effects by avoiding climate-sensitive regions (areas where non-CO₂ impacts are enhanced). This is achieved by planning aircraft trajectories to reroute around these specific atmospheric conditions. While promising in theory, flight planning at the individual trajectory scale (micro-scale) faces major obstacles when applied to global traffic scenarios. Air Traffic Management (ATM) is a complex multi-agent system, its collective behavior relies on the interaction between individual trajectories and the wider ATM network (macro-scale). Planning trajectories in isolation introduces several cascading challenges:"},
+                { "type": "paragraph", "text": "<b>1. Traffic Displacement:</b><br>Adopting climatically optimized trajectories evacuates regions sensitive to warming but increases congestion in cooling climate-sensitive areas." },
+                { "type": "paragraph", "text": "<b>2. Increased Complexity:</b><br>This shift in air traffic flow can increase traffic complexity in these newly congested regions" },
+                { "type": "paragraph", "text": "<b>3. Safety Hazards:</b><br> The resulting congestion poses potential safety risks that individual planning cannot foresee."},
+                { "type": "paragraph", "text": "Because of these interdependencies, environmental benefits cannot be evaluated by looking at single flights alone. It is essential to conduct analyses at the network level, accounting for the collective behavior of all flights within the system to ensure both environmental mitigation and operational safety."},
                 { "type": "paragraph", "text": "<hr>" }
               ]
             }
@@ -241,49 +238,74 @@
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "Emissions Overview" },
-                { "type": "paragraph", "text": "Visualize emissions overlays for PM2.5, NO2, and O3 across different scenarios. This tool provides transparent PNG overlays aligned to Europe bounds for map blending." }
+                {"type":"paragraph", "text":"<hr>"},
+                {"type":"paragraph", "text":"The Atmospheric Emissions Tool is designed to evaluate how reducing aircraft Nitrogen Oxide (NOx​) emissions influences broader air quality across Europe. By analyzing flight data from 2019, specifically focusing on the Landing and Take-Off (LTO) cycle, the tool models the complex chemical interactions between aviation exhaust and atmospheric pollutants. This allows regulators to visualize the direct health and environmental benefits of cleaner engine technologies on ground-level concentrations of Ozone, Nitrogen Dioxide, and Particulate Matter."},
+                {"type":"paragraph", "text":"Aircraft engines release a complex mixture of chemical species into the atmosphere. Among the most critical are Nitrogen Oxides (NOx​), Particulate Matter (PM2.5​), and Ozone (O3​). These are not merely distinct byproducts, they are chemically interactive. For instance, NOx​ emissions can act as a precursor, reacting in the atmosphere to form secondary pollutants like Ozone and Particulate Matter. The dispersal of these emissions is a public health concern. Exposure to high concentrations of these specific components is linked to negative health outcomes. Therefore, regulators cannot simply measure the amount of exhaust, they must understand how these emissions disperse, how they chemically transform into secondary pollutants, and how they affect air quality in populated areas."},
+                {"type":"paragraph", "text":"This tool provides a way to visualize the causal link between emission reduction and air quality improvement. It allows stakeholders to answer \"what-if\" scenarios specifically, how reducing aircraft NOx​ emissions would result in a corresponding drop in annual concentrations of PM2.5​, O3​, and NO2​ across Europe. By modeling these interactions, the tool demonstrates the tangible air quality benefits of cleaner aviation technologies."},
+                {"type":"paragraph", "text":"<hr>"}
               ]
             }
           ]
         }
       },
       {
-        "name": "Features",
+        "name": "Input Parameters",
         "content": {
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "Key Features" },
-                {
-                  "type": "list",
-                  "items": [
-                    "Multiple pollutant metrics (PM2.5, NO2, O3)",
-                    "Scenario comparison (Base vs. Reduction)",
-                    "Interactive map with overlay visualization",
-                    "Dynamic color bar with value ranges"
-                  ]
-                }
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "The tool functions as a comparative engine. Users first define a \"what-if\" scenario by applying a theoretical reduction to aircraft emissions. Once this reduction factor is set, the user selects a specific pollutant metric to visualize how that change propagates through the atmosphere across the European continent. The input parameters of the tool are as follows" },
+                { "type": "paragraph", "text": "<b>1. NOx​ Emission Reduction  </b>:<br>The primary control for the simulation is the emission reduction factor, specifically the NOx Emission Reduction filter, which allows users to simulate technological improvements or policy changes that reduce Nitrogen Oxide output from aircraft engines. Spanning a range from 0% to [Insert Max]%, this filter sets the lower limit (0%) as the \"Baseline\" scenario using actual recorded flight data from 2019 with standard aircraft emissions to serve as a reference point for current air quality. The higher limit (Max%) represents a theoretical \"Green Aviation\" scenario that allows users to observe the maximum potential environmental benefit if aircraft NOx emissions were drastically reduced or eliminated during the LTO cycle." },
+                { "type": "paragraph", "text": "<b>2. Metric</b>:<br>Once the reduction scenario is defined, the user selects the Metric to visualize the impact through two distinct viewing modes for each pollutant displaying the predicted annual average concentration in the atmosphere and the difference between the Baseline (0% reduction) and the selected Scenario (x% reduction) for available pollutants including PM2.5 (Particulate Matter) to visualize the density of fine particles with a diameter less than 2.5 micrometers, O3 (Ozone) to visualize ground-level ozone concentrations, and NO2 (Nitrogen Dioxide) to visualize the concentration of nitrogen dioxide directly linked to combustion engines." },
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
         }
       },
       {
-        "name": "Usage",
+        "name": "Visualizations",
         "content": {
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "How to Use" },
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "The tool presents data through two distinct lenses, Concentration Maps and Difference Maps, each using the color scale differently. " },
+                { "type": "paragraph", "text": "<h2>Annual-Averaged Concentration Map</h2>Specifically, the Annual-Averaged Concentration Map displays the absolute density of pollutants across Europe based on the Annual-Average Concentration calculated over the entire 2019 baseline year. Within this view, maximum values indicate \"Hotspots, areas with the highest sustained pollution levels where population exposure is most critical and minimum values indicate areas with the lowest background concentrations, while the colors further indicate underlying chemical dynamics: red areas denote zones of Formation or Emission where species are generated at high rates, blue areas denote zones of Destruction or Consumption functioning as \"sinks\" removing species from the air, and white areas denote Neutral zones with no significant net formation or destruction."},
                 {
-                  "type": "list",
-                  "items": [
-                    "<b>Metric:</b> Select PM2.5, NO2, or O3",
-                    "<b>Case:</b> Choose Base or 10% Reduction scenario",
-                    "View the overlay on the interactive map"
-                  ]
-                }
+                  "type": "image",
+                  "src": "src/assets/emissions/Annual_Average_Concentration_Map.png",
+                  "alt": "Annual-Averaged Concentration Map",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "<h2>Difference Map</h2>The Difference Map displays the change in air quality by calculating the mathematical difference between the Reduced Emission Scenario (e.g., 10% less aircraft NOx) and the Baseline Scenario of standard emissions; within this visualization, Minimum Values highlight the areas of Maximum Benefit where the pollutant concentration has dropped the most compared to the baseline, while Maximum Values highlight areas where the difference is highest, which, depending on the chemical interaction, could denote areas where the reduction strategy had the least effect or where complex chemistry led to a slight increase, such as ozone titration effects." },
+                {
+                  "type": "image",
+                  "src": "src/assets/emissions/Difference_Map.png",
+                  "alt": "Difference Map",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "name": "Analysis Guidelines",
+        "content": {
+          "sections": [
+            {
+              "content": [
+                {"type": "paragraph", "text": "<hr>" },
+                {"type": "paragraph", "text": "The visualizations generated by this tool serve two primary strategic purposes for regulators and airport authorities. First, they act as an Exposure Assessment mechanism, allowing authorities to identify exactly where the population is being exposed to the highest levels of aircraft-related pollution. Second, they serve as a Policy Validation tool. By visualizing how a theoretical reduction in emissions translates to cleaner air on the ground, stakeholders can quantify the potential benefits of new technologies, such as Sustainable Aviation Fuels (SAF),before implementation."},
+                {"type": "paragraph", "text": "To draw accurate conclusions, the analyst must distinguish between the \"Current State\" and the \"Potential Benefit\" by using the two different map types in tandem. The analysis begins with the Concentration Map, which represents the reality of the 2019 baseline year. It reflects the standard emissions generated by the Landing and Take-Off (LTO) cycle of all flights. The analyst should look for \"Hotspots\", geographical locations indicated by red zones where pollutants accumulate. These maps allow authorities to map the \"exposure radius.\" By overlaying this data with population maps, users can estimate how many citizens living in the vicinity of the airport are currently affected by aircraft activity."},
+                {"type": "paragraph", "text": "Once the baseline is understood, the Difference Map becomes the tool for change management. This map visualizes the \"What If\" scenario (e.g., \"What if we reduced NOx​ by 10%?\"). Here, the analyst should look for the areas of greatest change, indicated by the minimum values. These areas represent the communities that stand to gain the most health benefits from the proposed policy."},
+                { "type": "paragraph", "text": "When analyzing the maps, distinct spatial patterns emerge that reflect atmospheric chemistry. It is crucial to distinguish between these patterns to avoid misinterpreting the data. For Particulate Matter and Nitrogen Dioxide, the relationship is linear and intuitive. Concentrations are highest directly at the airport source and decrease steadily as one moves away. This indicates that the immediate airport vicinity is the primary risk zone for these pollutants." },
+                { "type": "paragraph", "text": "For Ozone, the pattern is often inverted due to a chemical process known as \"titration.\" Users may notice that Ozone levels appear lower directly near the airport (where NOx​ emissions are highest) and higher in the surrounding suburbs or countryside. This happens because freshly emitted Nitrogen Oxide (NO) chemically \"scavenges\" or destroys Ozone near the source. As the plume drifts away and dilutes, this scavenging effect stops, and Ozone reforms. Therefore, a low Ozone reading at the runway does not indicate a model error; rather, the \"Ozone Impact\" is often felt most strongly by communities outside the immediate airport perimeter." },
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
@@ -301,50 +323,75 @@
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "Atmospheric Pollution Overview" },
-                { "type": "paragraph", "text": "Assess air quality and model the dispersion of atmospheric pollutants over wide areas. This tool embeds the Air Portal for comprehensive pollution analysis." }
+                {"type":"paragraph", "text":"<hr>"},
+                {"type":"paragraph", "text":"The Atmospheric Pollution Tool (AIR-Portal) is a high-precision monitoring system designed to track air quality around major European airports. By fusing satellite data with atmospheric models, weather data and ground-based sensor readings, the tool transforms coarse regional data into high-resolution, street-level pollution maps (100x100m). This allows environmental agencies and airport operators to monitor Nitrogen Dioxide (NO2​), Ozone (O3​), and Particulate Matter (PM2.5​, PM10​) with unprecedented granularity."},
+                {"type":"paragraph", "text":"Standard atmospheric monitoring faces a \"resolution gap.\" Satellite data typically covers vast areas but lacks detail (often providing one reading for a massive 7x7km block), while ground stations provide accurate point data but are sparse and expensive to install. This leaves \"blind spots\" around airports where pollution hotspots may go undetected. As the aviation industry faces pressure to adopt sustainable practices, regulators need verifiable data to enforce standards, and operators need actionable insights to improve. Without granular data, environmental agencies cannot effectively report on air quality or identify specific sources of pollution within the airport perimeter."},
+                {"type":"paragraph", "text":"The tool bridges the resolution gap. It allows Environment Inspection Agencies to perform remote \"virtual inspections\" filling in data for locations that lack physical sensors. This enables more targeted manual inspections. Simultaneously, Airport Operators can use the historical data (e.g., investigating the last quarter) to identify infrastructure hotspots and track the progress of sustainability initiatives."},
+                {"type":"paragraph", "text":"<hr>"}
+
               ]
             }
           ]
         }
       },
       {
-        "name": "Features",
+        "name": "Input Parameters",
         "content": {
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "Key Features" },
-                {
-                  "type": "list",
-                  "items": [
-                    "Real-time and historical air quality data",
-                    "Multiple pollutant visualization (NO₂, PM₁₀, O₃, SO₂, CO)",
-                    "Spatial and temporal pattern analysis",
-                    "Regulatory threshold tracking"
-                  ]
-                }
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "The Atmospheric Pollution tool allows users to navigate through space, time, and chemical composition to build a complete picture of air quality. The interface is designed around a central map view, controlled by four primary input parameters." },
+                { "type": "paragraph", "text": "<b>1. Region Selector </b>:<br>This filter defines the geographical scope of the study. Selecting a specific region (e.g., City Center, Port Area, or Suburban North) automatically loads the relevant map bounds and the government-standard ambient noise maps associated with that location." },
+                { "type": "paragraph", "text": "<b>2. Date</b>:<br>Denotes the starting date of the data to be fetched." },
+                { "type": "paragraph", "text": "<b>3. Time Window</b>:<br>This parameter allows users to traverse a continuous timeline within a month while also being able to change the time range within that month providing different aggregation results." },
+                { "type": "paragraph", "text": "<b>5. Metric</b>:<br>This filter acts as the primary data layer filter. It determines which specific pollutant is visualized on the map and the statistics. The tool tracks the four primary pollutants specified by the European Environment Agency (EEA): NO2​, O3​ which are primarily associated with combustion and atmospheric chemistry and PM2.5​, PM10​ that are particulate matter of varying sizes."},
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
         }
       },
       {
-        "name": "Usage",
+        "name": "Visualizations",
         "content": {
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "How to Use" },
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "The tool does not rely on a single map to convey information instead, it presents a composite dashboard with two distinct visualization elements. These components work in tandem to provide the user with both a broad statistical overview and granular, location-specific details." },
+                { "type": "paragraph", "text": "<h2>Pollutant Concentration Time-Series Plot</h2>The first element is the Interactive Time-Series Plot. This dynamic line graph allows the analyst to track the concentration levels of the selected pollutant over the entire chosen timeframe. Unlike static maps, this plot reveals critical temporal trends, such as pollution spikes during morning rush hours or seasonal variances. Interactive features allow users to zoom in on specific events to verify if an exceedance was a momentary anomaly or a sustained issue."},
                 {
-                  "type": "list",
-                  "items": [
-                    "Navigate the embedded Air Portal interface",
-                    "Select different pollutants using portal controls",
-                    "Zoom and pan the map to explore regions",
-                    "View detailed metrics and time series data"
-                  ]
-                }
+                  "type": "image",
+                  "src": "src/assets/atmospheric_pollution_images/Pollutant_Concentration_Time-Series_Plot.png",
+                  "alt": "Pollutant Concentration Time-Series Plot",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "<h2>Pollutant Levels Interactive Map</h2>The central visual component of the tool is the Interactive Pollutant Map. This high-resolution heatmap overlays the city streets and airport infrastructure to reveal the spatial distribution of pollution. This visualization is crucial for source attribution, as it allows operators to visually distinguish whether, for instance, a spike in pollutants like NO2​ is originating from the runway (aircraft activity), the terminal forecourt (ground transport), or nearby highways. To interpret this map accurately, users must refer to the Color Legend (Annotation) located in the bottom right corner. This key translates the abstract colors of the heatmap into physical units (e.g., micrograms per cubic meter, μg/m3)." },
+                {
+                  "type": "image",
+                  "src": "src/assets/atmospheric_pollution_images/Interactive_Pollutant_Map.png",
+                  "alt": "Interactive Pollutant Map",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "name": "Analysis Guidelines",
+        "content": {
+          "sections": [
+            {
+              "content": [
+                {"type": "paragraph", "text": "<hr>" },
+                {"type": "paragraph", "text": "For environmental inspectors and airport operators, this tool functions as a dual-purpose engine for Compliance Monitoring and Source Attribution. Its primary strategic value lies in its ability to answer two critical questions simultaneously, whether the air quality meets standards, and exactly where any pollution is originating. This capability enables agencies to perform \"remote inspections,\" effectively filtering out false alarms and allowing them to deploy physical inspection teams only when the data indicates a genuine, localized problem. To make an informed decision, the analyst should follow a hierarchical workflow, moving from the general dashboard to the specific map details."},
+                {"type": "paragraph", "text": "By comparing the Area Average against the Geospatial Map, the user can differentiate between regional pollution events and local pollution sources. For instance, if the entire map appears red and the Area Average is high, the issue is likely a regional event like smog (often weather-driven) affecting the whole city. Conversely, if the Area Average is moderate but the map reveals a concentrated red cluster over the terminal or runway, the tool has identified a specific, local emission source that requires investigation."},
+                {"type": "paragraph", "text": "Nitrogen Dioxide serves as a \"smoking gun\" for combustion sources. On the high-resolution map, inspectors could look for specific geometric signatures. Linear streaks of high NO2​ typically track along highways, indicating that ground traffic is the culprit. In contrast, concentrated \"blobs\" or clusters at runway thresholds and gate areas may point to aircraft holding or taxiing. If the map shows a red highway but a yellow runway, the airport operator can demonstrate that poor air quality is driven by city traffic, not aviation. Lastly, due to atmospheric chemistry, high combustion (NOx​) often temporarily destroys Ozone. Consequently, users may observe lower Ozone levels directly over a busy runway compared to the quiet surrounding fields. It is critical not to interpret low Ozone at the airport as \"clean air,\" as it often implies the air is actually saturated with engine exhaust that is chemically scavenging the Ozone."},
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
@@ -354,7 +401,7 @@
   },
   "l4": {
     "id": "l4",
-    "title": "Optimized Trajectories",
+    "title": "Airflow Trajectory Optimization",
     "tabs": [
       {
         "name": "Overview",
@@ -362,28 +409,62 @@
           "sections": [
             {
               "content": [
+                { "type":"paragraph", "text":"<hr>"},
+                { "type": "paragraph", "text": "The increasing use of Unmanned Aerial Vehicles (UAVs) for commercial activities in urban areas presents significant navigation challenges. The primary problem is ensuring safe navigation through complex, three-dimensional urban environments characterized by obstacles (buildings) and turbulent flow fields. Navigating these environments carries inherent risks, including collisions with obstacles, which can damage the drone, the cargo, or harm pedestrians. Additionally, these operations generate noise and consume energy, contributing to the environmental footprint of aviation" },
+                { "type": "paragraph", "text": "This tool utilizes a predictive framework based on Artificial Intelligence (AI), specifically Deep Reinforcement Learning (DRL), to optimize drone trajectories. The framework combines path-planning with obstacle detection and avoidance strategies. By processing instantaneous flow field information and the drone's position in real-time, the tool determines the optimal trajectory to a target. The system employs a \"trial and error\" learning process where an agent (the drone) interacts with the environment to learn a policy that maximizes safety and efficiency, allowing it to navigate complex, urban-like flow fields that would be difficult to manage with conventional navigation strategies." },
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
         }
       },
       {
-        "name": "Features",
+        "name": "Input Parameters",
         "content": {
           "sections": [
             {
               "content": [
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "Users configure the simulation environment and mission parameters to generate optimized flight paths. The tool utilizes a Deep Reinforcement Learning (DRL) framework where an agent navigates a specific flow field based on the following input filters:" },
+                { "type": "paragraph", "text": "<b>1. Area Selection </b>:<br>This categorical filter selects the specific urban environment and domain geometry in which the trajectory optimization will take place. Selecting a city loads the corresponding 3D layout of obstacles (buildings) and the boundary conditions for the flow field simulation. This defines the physical space the drone must navigate while avoiding collisions." },
+                { "type": "paragraph", "text": "<b>2. Take-off Vertiport</b>:<br>This input defines the starting coordinates of the Unmanned Aerial Vehicle (UAV). In the context of the underlying Partially Observable Markov Decision Process (POMDP), this initializes the drone's state vector (position) at time 0. Applicable values are a list of designated vertiport locations available within the selected 'City' geometry." },
+                { "type": "paragraph", "text": "<b>3. Landing Vertiport</b>:<br>This input establishes the target area or destination point for the mission. This parameter is critical for the DRL algorithm's reward function, specifically the Transition Reward, which calculates the difference in distance to the target between time steps to encourage progression toward the destination. Same as the take-off vertiports values are a list of designated vertiport locations available within the selected 'City' geometry." },
+                { "type": "paragraph", "text": "<b>4. Turbulence Levels</b>:<br>This continuous filter adjusts the intensity and complexity of the wind flow field through which the drone must navigate. It influences the magnitude of the flow velocity vector and the stochasticity of the environment that the LSTM module must interpret. A value at the minimum denotes a laminar or calm flow environment. In this scenario, the flow field velocity is low or constant, allowing for straighter trajectories with lower energy consumption, as the drone faces less resistance and fewer destabilizing vortices. A value at the maximum denotes a highly chaotic, high-energy flow field characterized by strong gusts and complex wake dynamics behind buildings. In this scenario, the LSTM network is heavily utilized to predict temporal evolution. and the drone may need to execute complex manoeuvres to maintain stability, potentially resulting in higher energy penalties and a trajectory that deviates significantly from the straight line to avoid high-velocity zones." },
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
         }
       },
       {
-        "name": "Usage",
+        "name": "Visualizations",
         "content": {
           "sections": [
             {
               "content": [
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "<h2>3D Flight Path Visualization</h2>The tool generates a composite 3D Plot that denotes the obstacles, the trajectory starting and ending vertiports, as well as a contour map of the airflow velocity. This visualization is a spatial representation that superimposes the optimal flight path generated by the DRL agent onto the complex urban environment. It combines the static geometry of the city (buildings/obstacles) with the dynamic, instantaneous fluid flow field through which the drone navigates. It is critical for validating the safety and efficiency of the proposed route. Unlike standard GPS pathfinding, this view reveals the invisible aerodynamic forces acting on the drone. It demonstrates how the Deep Reinforcement Learning (DRL) agent utilizes the LSTM module to predict and react to temporal flow dynamics, such as wake zones and gusts, ensuring the trajectory not only avoids physical collisions but also navigates energy-efficiently through turbulent air"},
+                {
+                  "type": "image",
+                  "src": "src/assets/airflow_trajectory_optimization/3D_Flight_Path_Visualization.png",
+                  "alt": "3D Flight Path Visualization",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "name": "Analysis Guidelines",
+        "content": {
+          "sections": [
+            {
+              "content": [
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "To make an informed operational decision, the user must analyse the relationship between the plotted trajectory and the airflow map. The baseline for comparison is the Euclidean shortest path, a straight line connecting the start and end points. In the visualization, users should look for deviations from this straight line. These deviations are not inefficiencies but necessary manoeuvres where the AI agent is actively avoiding high-risk areas. A key pattern to observe is the interaction with wake zones, located immediately behind obstacles. These areas represent turbulent recirculation where airflow velocity is negative. A safe trajectory will typically contour around these areas rather than cutting through them, as entering these zones can cause instability. Users should also verify the drone's behaviour near \"Yellow/Green\" acceleration zones at building corners; the trajectory should maintain a safe buffer distance to avoid collision while potentially utilizing the flow for energy-efficient propulsion. By confirming that the red trajectory line successfully navigates between obstacles and avoids the dark blue turbulence zones without excessive detours, the user can validate the safety and feasibility of the proposed flight plan." },
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
@@ -401,51 +482,90 @@
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "Noise Assessment Overview" },
-                { "type": "paragraph", "text": "Evaluate and map noise levels for small sites, buildings, or local environments. Explore noise assessment data interactively with multiple parameters." }
+                { "type":"paragraph", "text":"<hr>"},
+                { "type": "paragraph", "text": "The Noise Assessment Tool is designed to evaluate the acoustic impact of Unmanned Aircraft Systems (UAS) within urban environments. Rather than relying on costly and time-consuming numerical calculations, this tool uses advanced algorithms and measurements to empirically  predict  drone noise emissions, noise propagation (straight rays), and how it is perceived by citizens. This capability is critical because As cities introduce UAS traffic for delivery and transport, they introduce a new, distinct layer of noise pollution. Introduding the systems Conducting physical flight tests directly in the urban environment to assess (or even certify)  the impact is time-consuming, and disruptive to the very citizens authorities are trying to protect, and because community acceptance is the primary barrier to widespread adoption, predicting human reaction before operations begin is essential for sustainable urban planning." },
+                { "type": "paragraph", "text": "To solve these challenges, the tool acts as a virtual testing ground that generates Noise Heatmaps, allowing operators and regulators to visualize noise impact without flying a single physical drone. This predictive capability enables regulators to study how restricted airspaces affect noise accumulation and allows local authorities to compare multiple \"what-if\" scenarios for proposed drone corridors. Furthermore, it empowers UAS operators to optimize flight paths that minimize citizen annoyance, thereby protecting both their customer base and their license to operate." },
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
         }
       },
       {
-        "name": "Features",
+        "name": "Input Parameters",
         "content": {
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "Key Features" },
-                {
-                  "type": "list",
-                  "items": [
-                    "Interactive noise level visualization",
-                    "Multiple metric options (Ambient Noise, Annoyance, HA%, Leq)",
-                    "Flight zone and traffic level analysis",
-                    "Custom color scale for noise intensity"
-                  ]
-                }
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "The tool interface functions as a dynamic control panel. Users define a simulation scenario by adjusting specific Input Filters to configure the environment and traffic parameters. Once the scenario is defined, the user selects a Visualization Metric to render the resulting noise heatmap." },
+                { "type": "paragraph", "text": "<b>1. Area Selection </b>:<br>This filter defines the geographical scope of the study. Selecting a specific region automatically loads the relevant map bounds and the government-standard ambient noise maps associated with that location." },
+                { "type": "paragraph", "text": "<b>2. Ambient Noise Profile</b>:<br>This filter determines the baseline acoustic environment against which drone noise is evaluated. It offers two categorical options: Day-time and Night-time. Selecting Day-time uses ambient noise data typical of active city hours, where higher background noise may mask some drone sounds. Selecting Night-time uses data from quieter hours, where the background noise is lower, potentially making drone overflights more intrusive." },
+                { "type": "paragraph", "text": "<b>3. Flight Zones</b>:<br>This setting simulates the regulatory environment to test how airspace restrictions impact noise distribution. Users can select Unrestricted, which allows drones to fly the most efficient, direct paths between points. Alternatively, selecting Restricted applies geofencing constraints (e.g., No-Fly Zones over sensitive areas like hospitals), which forces drone traffic into specific corridors, potentially concentrating noise in narrow bands." },
+                { "type": "paragraph", "text": "<b>4. Flights per Hour</b>:<br>This filter controls the density of the airspace by defining the flight rate. Lower values on the scale represent sparse, sporadic operations, making them useful for assessing the specific impact of individual delivery events. Conversely, higher values simulate high-density logistics operations; this end of the spectrum is utilized to stress-test the environment against saturation levels, creating a scenario where noise becomes a constant presence rather than an intermittent event." },
+                { "type": "paragraph", "text": "<b>5. Metric</b>:<br>The Metric filter determines which data layer is painted over the map once the simulation is complete, offering four distinct visualization options. Ambient Noise displays the baseline interference from ground traffic and industrial sources provided by the government, while UAS Noise (LAeq) presents the acoustic energy generated solely by the simulated drone traffic. This allows operators to identify exactly where drone sound energy accumulates independent of background city noise. Furthermore, change in Annoyance showcases a heatmap of the delta in public sentiment to highlight areas where drones cause the most significant negative shift in perception. Change in Percentage Highly Annoyed outputs critical “tipping points” identifying specific neighbourhoods where the selected traffic intensity causes residents to cross the threshold from tolerant to highly annoyed."},
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
         }
       },
       {
-        "name": "Usage",
+        "name": "Visualizations",
         "content": {
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "How to Use" },
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "The primary output of the tool is a Geospatial Heatmap. This visualization overlays a semi-transparent colour gradient onto the 2D city map. In this system, specific colours correspond to specific numerical values. Raw data tables are difficult to interpret in an urban planning context. By projecting the data directly onto the city geometry, the heatmap allows users to instantly recognize spatial patterns. It highlights hotspots and allows authorities to correlate noise levels with specific landmarks, residential zones, or street canyons. While the visual method remains consistent, the meaning of the colour scale changes depending on the selected metric." },
+                { "type": "paragraph", "text": "<h2>Ambient Noise Interactive Map</h2>The Ambient Noise Level metric visualizes the existing levels of street-level noise from sources unrelated to air traffic such as cars, trains, and construction serving as the control for the experiment. The scale spans from 0 dB (theoretical silence) to 100 dB (extreme loudness). Areas displaying values near the lower end represent quiet zones, such as large parks, residential cul-de-sacs, or the city at night. These are sensitive locations where any new noise will be highly noticeable. Conversely, values approaching the 100 dB mark represent an extremely loud, potentially hazardous environment comparable to standing near a jackhammer or a passing subway train, indicating hot zones where the city is already saturated with noise."},
                 {
-                  "type": "list",
-                  "items": [
-                    "<b>City:</b> Select the city dataset",
-                    "<b>Time:</b> Choose time of day",
-                    "<b>Flight Zones:</b> Restricted or Unrestricted",
-                    "<b>Flights Per Hour:</b> Select traffic level",
-                    "<b>Metric:</b> Choose noise measurement type"
-                  ]
-                }
+                  "type": "image",
+                  "src": "src/assets/noise_assessment_images/Ambient_Noise_Interactive_Map.png",
+                  "alt": "Ambient Noise Interactive Map",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "<h2>UAS Noise (LAeq) Interactive Map</h2>The UAS Noise Level (LAeq) metric isolates the acoustic energy generated solely by the simulated drone traffic. Unlike the ambient map, this shows exactly where the flight paths are depositing sound energy onto the city. Like ambient noise, this uses the standard acoustic scale of 0 dB to 100 dB. Low end values indicate areas where the drone is either very far away, shielded by buildings, or not operating, meaning the noise impact here is negligible. In contrast, high end values indicate areas directly under flight paths or near vertiports (take-off and landing zones), where high dB values signify that the drones are generating significant noise pollution that will be clearly audible above the city background."},
+                {
+                  "type": "image",
+                  "src": "src/assets/noise_assessment_images/UAS_Noise_Interactive_Map.png",
+                  "alt": "UAS Noise Interactive Map",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "<h2>Change in Annoyance Interactive Map</h2>The Annoyance Shift is a psychoacoustic metric that measures the change in public sentiment. It calculates how much the \"annoyance rating\" of the population increases when drone noise is added to the existing ambient noise, operating on the standard 11-point ISO annoyance scale. On this scale, low end values like 0 denote no negative change, meaning the introduction of drones has not perceptibly altered the annoyance levels of the population, either because the drones are quiet or the city is already so loud the drones are masked. Conversely, high end values approaching 10 represent a severe negative shift, indicating that the specific combination of drone frequency and sound character has pushed the population from a state of tolerance to a state of maximum annoyance."},
+                {
+                  "type": "image",
+                  "src": "src/assets/noise_assessment_images/Change_in_Annoyance_Interactive_Map.png",
+                  "alt": "Change in Annoyance Interactive Map",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "<h2>Percentage of Highly Annoyed Interactive Map</h2>The Percentage of Highly Annoyed (%HA) is a statistical probability map that identifies the density of the population predicted to be \"highly annoyed\" by the combined noise environment. Often considered the \"political risk\" map, its scale represents the percentage of the population in a given map sector. Low end values close to 0% imply that no citizens in this specific area are predicted to reach the \"highly annoyed\" threshold, suggesting the flight path is likely socially acceptable in this zone. In contrast, values approaching 100% imply that the entire population within this map sector is predicted to be highly annoyed; this indicates a critical failure in route planning where operations will likely face immediate and unanimous community opposition."},
+                {
+                  "type": "image",
+                  "src": "src/assets/noise_assessment_images/Percentage_of_Highly_Annoyed_Interactive_Map.png",
+                  "alt": "Percentage of Highly Annoyed Interactive Map",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "name": "Analysis Guidelines",
+        "content": {
+          "sections": [
+            {
+              "content": [
+                {"type": "paragraph", "text": "<hr>" },
+                {"type": "paragraph", "text": "The heatmaps generated by this tool are not just static images, they are decision-support instruments. They are primarily used to answer complex planning questions regarding route optimization, infrastructure planning, and capacity planning, e.g. determining how much traffic a neighborhood can tolerate. To make an informed decision, the analyst must look beyond the raw colors and identify specific relationships between the different visualization layers."},
+                {"type": "paragraph", "text": "The analysis should always begin with the Ambient Noise layer. This establishes the existing acoustic budget of the city. It is crucial to identify areas of naturally high noise, such as highways or industrial zones, versus areas of low noise, such as parks or suburban areas. This distinction is vital because background noise acts as a mask. In loud areas, drone noise may blend in, resulting in a low Annoyance Shift. Conversely, in quiet areas, even a low-decibel drone overflight will break the silence, causing a massive spike in annoyance."},
+                {"type": "paragraph", "text": "Once the baseline is understood, users should look for specific visual signatures in the UAS Noise and %HA layers. Long, continuous streaks of high noise indicate a flight path. If this streak bisects sensitive infrastructure, such as schools or hospitals, the route is likely non-viable regardless of the specific decibel level. Concentrated \"bubbles\" of heat usually indicate vertiports (take-off and landing sites) or hovering points. If a hotspot on the % Highly Annoyed map turns red (approaching 100%), it suggests the location is unsuitable for a vertiport due to predicted community rejection."},
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
@@ -463,52 +583,76 @@
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "Wind Risk Assessment Overview" },
-                { "type": "paragraph", "text": "Analyze wind patterns and potential risks for small-scale sites. Leverages high-resolution wind simulation datasets for actionable insights." }
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "The Wind Risk Assessment Tool is designed to enhance the safety and efficiency of Unmanned Aerial Vehicle (UAV) operations within complex urban environments. By modeling the interaction between wind currents and city geometry, the tool aids in trajectory optimization and risk mitigation. It provides granular insights into airflow patterns that standard weather reports cannot detect, ensuring operators can visualize and avoid hazardous flight zones." },
+                { "type": "paragraph", "text": "Wind in an urban environment behaves very differently than wind in an open field. Buildings create obstacles that channel wind, creating \"urban canyons\" where speed increases, or \"wake zones\" where distinct turbulence occurs behind structures. Standard weather reports give a single wind speed for a whole city, which fails to capture these localized, dangerous micro-climates. For Unmanned Aerial Vehicles (UAVs), unseen wind patterns are a primary risk factor. Sudden gusts or high turbulence (TKE) can destabilize a drone, leading to crashes or loss of control and flying against strong wind tunnels drains battery life rapidly. Predicting these flows is essential for safe and reliable logistics."},
+                { "type": "paragraph", "text": "The tool provides a \"wind-aware\" trajectory planner for drone operators. It creates granular risk maps for high-complexity urban environments. These environments are modelled with varying geometric Level of Detail (LoD) to ensure accurate interaction between wind and architecture. By visualizing Umag​ and TKE, operators can see the invisible wind tunnels and turbulence zones, allowing them to optimize flight paths that bypass high-risk areas completely."},
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
         }
       },
       {
-        "name": "Features",
+        "name": "Input Parameters",
         "content": {
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "Key Features" },
-                {
-                  "type": "list",
-                  "items": [
-                    "Multiple Levels of Detail (LoD)",
-                    "Wind speed and turbulence visualization",
-                    "Interactive wind direction knob",
-                    "Multiple altitude analysis",
-                    "Dynamic color-coded heatmaps"
-                  ]
-                }
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "The tool functions as a \"digital wind tunnel.\" To generate a risk map, the user must first define the physical environment and the incoming weather conditions. The interface provides specific filters to configure these parameters and select the desired visualization metric to overlay on the city map. Below the filters are explained in detail." },
+                { "type": "paragraph", "text": "<b>1. Area Selection </b>:<br>Select the specific urban dataset to be analyzed via the Area filter. Switching between areas loads the specific underlying map and building structures used for the fluid dynamics calculation." },
+                { "type": "paragraph", "text": "<b>2. Level of Detail (LoD)</b>:<br>The Level of Detail (LoD) filter determines the geometric complexity of the buildings within the simulation. Selecting Low (LoD 1.2) represents buildings as simple block structures with flat roofs, which is useful for general flow approximations and quick calculations. In contrast, selecting High (LoD 2.2) introduces refined roof shapes and detailed geometry; this level is essential for accurate turbulence prediction, as complex rooflines often create specific eddies and wake zones that simpler models miss." },
+                { "type": "paragraph", "text": "<b>3. Altitude</b>:<br>Because wind flow is 3-dimensional, this filter allows the user to \"slice\" the simulation volume at a specific height. Lower values represent ground-level or near-surface operations, which are critical for assessing take-off, landing, and pedestrian safety risks. Conversely, higher values represent cruise altitude above the building canopy, where the wind is generally stronger but less turbulent (freestream flow)." },
+                { "type": "paragraph", "text": "<b>4. Wind Direction</b>:<br>The Wind Direction filter sets the angle from which the wind is blowing into the city, ranging from 0° to 359°. Users should align this setting with real-world weather forecasts to understand how specific currents interact with the city's street layout. For reference, 0° represents a North wind, 90° is East, 180° is South, and 270° is West." },
+                { "type": "paragraph", "text": "<b>5. Metric</b>:<br>The Metric filter determines which aerodynamic property is displayed on the heatmap once the simulation is configured. Velocity Magnitude (Umag​) visualizes the absolute speed of the air at the selected altitude, bound to a scale of 0 to 5 m/s. In contrast, Turbulent Kinetic Energy (TKE) visualizes the \"choppiness\" or instability of the airflow, bound to a scale of 0 to 0.08 m2/s2; this is often considered a more critical safety metric than pure speed."},
+                { "type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
         }
       },
       {
-        "name": "Usage",
+        "name": "Visualizations",
         "content": {
           "sections": [
             {
               "content": [
-                { "type": "heading", "text": "How to Use" },
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "The tool outputs its simulation results as a Geospatial Heatmap. This is a graphical overlay that sits on top of the 2D map. It translates complex fluid dynamics equations into a visual color spectrum, allowing users to \"see\" the wind as it flows through streets and around buildings. Wind in an urban environment is invisible and highly unpredictable. A numerical spreadsheet cannot convey how a skyscraper channels wind into a fast-moving jet or creates a dangerous wake. By visualizing these forces as a color gradient, operators can instantly identify safe corridors and \"no-fly\" zones, making the invisible risks visible for flight planning. The meaning of the heatmap changes depending on which metric is selected. Below is a guide on how to interpret the specific ranges for Velocity and Turbulence." },
+                { "type": "paragraph", "text": "<h2>Velocity Magnitude (Umag​)</h2>It visualizes the speed of the airflow at the chosen altitude, effectively answering the question of how hard will the wind push against the drone. The visualization uses a fixed scale ranging from 0 m/s to 5 m/s, representing wind speeds from calm to moderate. Low values approaching 0 m/s represent stagnant or calm air where flying requires minimal energy for position holding. Conversely, high values approaching 5 m/s represent faster-moving air. While 5 m/s is not gale-force, in a confined urban canyon it represents a significant aerodynamic load; drones operating here must tilt more aggressively to fight the wind, draining batteries faster and reducing flight time."},
                 {
-                  "type": "list",
-                  "items": [
-                    "<b>Level of Detail:</b> Select spatial resolution",
-                    "<b>City:</b> Choose city or campus",
-                    "<b>Parameter:</b> Wind Speed or Turbulence Level",
-                    "<b>Altitude:</b> Select height above ground",
-                    "<b>Wind Direction:</b> Adjust using interactive knob"
-                  ]
-                }
+                  "type": "image",
+                  "src": "src/assets/wind_risk_assessment_images/Velocity_Magnitude_Interactive_Map.png",
+                  "alt": "Velocity Magnitude Interactive Map",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" },
+                { "type": "paragraph", "text": "<h2>Turbulent Kinetic Energy (TKE)</h2>Visualizes the stability of the air, effectively answering the question of how smooth or chaotic is the air, by measuring the energy variance in the flow essentially, how much the wind speed and direction are fluctuating. The visualization uses a scale from 0 to 0.08 m2/s2 to highlight the difference between smooth flow and dangerous turbulence. Low values approaching 0 indicate laminar flow, where the air moves smoothly in layers; even if the velocity magnitude (Umag​) is high, low TKE means the flight will be predictable and stable. In contrast, high values approaching 0.08 indicate high turbulence, often found immediately behind tall buildings or at street corners where wind streams collide. In these \"hot\" zones, the air is chaotic, and a drone may experience sudden drops in lift or uncommanded yaws, making this metric a critical risk indicator for safety."},
+                {
+                  "type": "image",
+                  "src": "src/assets/wind_risk_assessment_images/TKE_Interactive_Map.png",
+                  "alt": "Turbulent Kinetic Energy Interactive Map",
+                  "size": "100%"
+                },
+                { "type": "paragraph", "text": "<hr>" }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "name": "Analysis Guidelines",
+        "content": {
+          "sections": [
+            {
+              "content": [
+                {"type": "paragraph", "text": "<hr>" },
+                {"type": "paragraph", "text": "The visualizations generated by this tool are not merely static images, they are critical instruments for Trajectory Optimization. For a drone operator, planning a flight path involves balancing two competing factors, safety and efficiency. A safe path must avoid areas where turbulence could destabilize or crash the drone, while an efficient path must avoid areas where strong headwinds would drain the battery and reduce the operational range. The tool allows operators to visualize these invisible trade-offs before takeoff."},
+                {"type": "paragraph", "text": "Unlike static maps of buildings or roads, wind maps show dynamic fluid flows. To interpret them correctly, the analyst must look for specific aerodynamic patterns that arise from the interaction between the wind and the city geometry. The analysis begins with the inflow conditions, the specific weather forecast entered by the user (e.g., a North wind at 5 m/s). The heatmap reveals how the city structure alters this baseline. \"Cool\" colors (greens and blues) generally indicate sheltered zones where buildings block the wind, creating safe pockets for operation. Conversely, \"Hot\" colors (reds and oranges) highlight areas where the urban geometry has accelerated the wind or created chaotic instability. Operators should specifically look for two common phenomena."},
+                {"type": "paragraph", "text": "First is the \"Urban Canyon\" effect which is visible on the Velocity (Umag​) map. It occurs when wind is channeled into narrow streets aligned with the wind direction. As the air is squeezed into these tight spaces, it speeds up significantly due to the Venturi effect. Flying through these canyons requires high power consumption to fight the current."},
+                {"type": "paragraph", "text": "Second is the \"Building Wake\" effect which is visible on the Turbulence (TKE) map. Operators should carefully examine the areas immediately behind tall buildings relative to the wind direction. These are \"No-Fly Zones\" because while the wind speed here might appear low, the air is often recirculating chaotically. A drone entering a wake zone may experience sudden, uncommanded loss of lift or yaw."},
+                {"type": "paragraph", "text": "<hr>" }
               ]
             }
           ]
